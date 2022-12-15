@@ -23,7 +23,7 @@ public:
 	static int SquaredDistance(glm::vec2 p1, glm::vec2 p2);
 	static bool SquaredRadiusCheck(GameObject* object1, GameObject* object2);
 
-	static bool AABBCheck(GameObject* object1, GameObject* object2);
+	static bool AABBCheck(PhysicsEngine* object1, PhysicsEngine* object2);
 
 	static bool LineLineCheck(glm::vec2 line1_start, glm::vec2 line1_end, glm::vec2 line2_start, glm::vec2 line2_end);
 
@@ -35,7 +35,7 @@ public:
 	
 
 	static int CircleAABBSquaredDistance(glm::vec2 circle_centre, int circle_radius, glm::vec2 box_start, int box_width, int box_height);
-	static bool CircleAABBCheck(GameObject* object1, GameObject* object2);
+	static bool CircleAABBCheck(PhysicsEngine* object1, PhysicsEngine* object2);
 
 	static bool PointRectCheck(glm::vec2 point, glm::vec2 rect_start, float rect_width, float rect_height);
 

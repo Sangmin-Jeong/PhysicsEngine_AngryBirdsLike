@@ -18,6 +18,9 @@ enum class GameObjectType {
 	NUM_OF_TYPES,
 	PROJECTILE,
 	ENEMY,
+	ARROW,
+	BLOCK_FIX,
+	BLOCK
 
 
 };

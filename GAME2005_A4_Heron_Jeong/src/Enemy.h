@@ -8,7 +8,7 @@
 class Enemy : public PhysicsEngine
 {
 public:
-	Enemy(float mass, float angle, float speed, float gravity, float damping, float startX, float startY, GameObjectType type);
+	Enemy(float mass, float angle, float speed, float gravity, float damping, float startX, float startY, GameObjectType type, MaterialType mtype);
 	~Enemy() override;
 
 	// Life Cycle Functions

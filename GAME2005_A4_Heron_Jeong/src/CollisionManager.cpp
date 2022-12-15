@@ -44,49 +44,87 @@ bool CollisionManager::SquaredRadiusCheck(GameObject* object1, GameObject* objec
 
 }
 
-bool CollisionManager::AABBCheck(GameObject* object1, GameObject* object2)
+bool CollisionManager::AABBCheck(PhysicsEngine* object1, PhysicsEngine* object2)
 {
 	// prepare relevant variables
-	const auto p1 = object1->GetTransform()->position;
-	const auto p2 = object2->GetTransform()->position;
-	const auto p1_width = static_cast<float>(object1->GetWidth());
-	const auto p1_height = static_cast<float>(object1->GetHeight());
-	const auto p2_width = static_cast<float>(object2->GetWidth());
-	const auto p2_height = static_cast<float>(object2->GetHeight());
+	const glm::vec2 p1 = object1->GetTransform()->position;
+	const glm::vec2 p2 = object2->GetTransform()->position;
+	const float p1_width = static_cast<float>(object1->GetWidth());
+	const float p1_height = static_cast<float>(object1->GetHeight());
+	const float p2_width = static_cast<float>(object2->GetWidth());
+	const float p2_height = static_cast<float>(object2->GetHeight());
 
-	if (
-		p1.x < p2.x + p2_width &&
-		p1.x + p1_width > p2.x &&
-		p1.y < p2.y + p2_height &&
-		p1.y + p1_height > p2.y
-		)
+	glm::vec2 p1_center;
+	glm::vec2 p2_center;
+	if (object1->GetType() == GameObjectType::BLOCK || object1->GetType() == GameObjectType::BLOCK_FIX)
 	{
-		if (!object2->GetRigidBody()->isColliding) 
+		p1_center = glm::vec2(p1.x + p1_width * 0.5f, p1.y + p1_height * 0.5f);
+	}
+	else
+	{
+		p1_center = p1;
+	}
+
+	if (object2->GetType() == GameObjectType::BLOCK || object2->GetType() == GameObjectType::BLOCK_FIX)
+	{
+		p2_center = glm::vec2(p2.x + p2_width * 0.5f, p2.y + p2_height * 0.5f);
+	}
+	else
+	{
+		p2_center = p2;
+	}
+
+
+	float displacementX = p2_center.x - p1_center.x;
+	float displacementY = p2_center.y - p1_center.y;
+	glm::vec2 displacement = p2_center - p1_center;
+	glm::vec2 direction = Util::Normalize(displacement);
+
+	float distanceX = abs(displacementX);
+	float distanceY = abs(displacementY);
+
+
+	// If the value of the overlaps are greater than 0, it means that objects are collided
+	float overlapX = (p1_width / 2 + p2_width / 2) - distanceX;
+	float overlapY = (p1_height / 2 + p2_height / 2) - distanceY;
+
+	float directionX = Util::Sign(displacementX);
+	float directionY = Util::Sign(displacementY);
+
+	glm::vec2 totalMomentum = object2->GetMomentum() + object2->GetMomentum();
+	float COR1 = object1->GetMaterialCOR();
+	float COR2 = object2->GetMaterialCOR();
+
+
+	if (overlapY > 0 && overlapX > 0)
+	{
+		//Move along X and than bounce the object off
+		if (overlapX < overlapY)
 		{
+			object2->GetTransform()->position = object2->GetTransform()->position + direction * overlapX;
+			object2->SetVelocity(direction * (totalMomentum * COR2) / object2->GetMass());
 
-			object2->GetRigidBody()->isColliding = true;
-
-			switch (object2->GetType()) {
-			case GameObjectType::TARGET:
-				std::cout << "Collision with Target!" << std::endl;
-				SoundManager::Instance().PlaySound("yay", 0);
-				break;
-			case GameObjectType::OBSTACLE:
-				std::cout << "Collision with Obstacle!" << std::endl;
-				SoundManager::Instance().PlaySound("yay", 0);
-				break;
-			default:
-
-				break;
+			// Bounce for another object, but except Fixed_Block
+			if (object1->GetType() != GameObjectType::BLOCK_FIX)
+			{
+				object1->SetVelocity(-direction * (totalMomentum * COR1) / object1->GetMass());
 			}
 
-			return true;
 		}
-		return false;
-	}
-	object2->GetRigidBody()->isColliding = false;
-	return false;
+		//Move along Y and than bounce the object off
+		else
+		{
+			object2->GetTransform()->position = object2->GetTransform()->position + direction * overlapY;
+			object2->SetVelocity(direction * (totalMomentum * COR2) / object2->GetMass());
 
+			if (object1->GetType() != GameObjectType::BLOCK_FIX)
+			{
+				object1->SetVelocity(-direction * (totalMomentum * COR1) / object1->GetMass());
+			}
+		}
+		return true;
+	}
+	return false;
 }
 
 bool CollisionManager::LineLineCheck(const glm::vec2 line1_start, const glm::vec2 line1_end, const glm::vec2 line2_start, const glm::vec2 line2_end)
@@ -199,82 +237,100 @@ int CollisionManager::CircleAABBSquaredDistance(const glm::vec2 circle_centre, i
 	return static_cast<int>((dx * dx) + (dy * dy));
 }
 
-bool CollisionManager::CircleAABBCheck(GameObject* object1, GameObject* object2)
+bool CollisionManager::CircleAABBCheck(PhysicsEngine* aabb, PhysicsEngine* circle)
 {
-	// common properties
-	const auto box_width = static_cast<float>(object2->GetWidth());
-	const auto box_height = static_cast<float>(object2->GetHeight());
-	const auto half_box_width = box_width * 0.5f;
-	const auto half_box_height = box_height * 0.5f;
+	// prepare relevant variables
+	const glm::vec2 p1 = aabb->GetTransform()->position;
+	const glm::vec2 p2 = circle->GetTransform()->position;
+	const float p1_width = static_cast<float>(aabb->GetWidth());
+	const float p1_height = static_cast<float>(aabb->GetHeight());
+	const float p2_width = static_cast<float>(circle->GetWidth());
+	const float p2_height = static_cast<float>(circle->GetHeight());
 
-	// circle
-	const auto circle_centre = object1->GetTransform()->position;
-	const auto circle_radius = static_cast<int>(std::max(half_box_width, half_box_height));
-
-	// aabb
-
-	if (const auto box_start = object2->GetTransform()->position - glm::vec2(half_box_width, half_box_height); 
-		CircleAABBSquaredDistance(circle_centre, circle_radius, box_start, object2->GetWidth(), object2->GetHeight()) <= (circle_radius * circle_radius))
+	glm::vec2 p1_center;
+	glm::vec2 p2_center;
+	if (aabb->GetType() == GameObjectType::BLOCK || aabb->GetType() == GameObjectType::BLOCK_FIX)
 	{
-		if (!object2->GetRigidBody()->isColliding) 
-		{
-			object2->GetRigidBody()->isColliding = true;
-
-			const auto attack_vector = object1->GetTransform()->position - object2->GetTransform()->position;
-			constexpr auto normal = glm::vec2(0.0f, -1.0f);
-
-			const auto dot = Util::Dot(attack_vector, normal);
-			const auto angle = acos(dot / Util::Magnitude(attack_vector)) * Util::Rad2Deg;
-
-			switch (object2->GetType())
-			{
-			case GameObjectType::TARGET:
-				std::cout << "Collision with Planet!" << std::endl;
-				SoundManager::Instance().PlaySound("yay", 0);
-				break;
-			case GameObjectType::SHIP:
-			{
-				SoundManager::Instance().PlaySound("thunder", 0);
-				const auto velocity_x = object1->GetRigidBody()->velocity.x;
-				const auto velocity_y = object1->GetRigidBody()->velocity.y;
-
-				if ((attack_vector.x > 0 && attack_vector.y < 0) || (attack_vector.x < 0 && attack_vector.y < 0))
-					// top right or top left
-				{
-					if (angle <= 45)
-					{
-						object1->GetRigidBody()->velocity = glm::vec2(velocity_x, -velocity_y);
-					}
-					else
-					{
-						object1->GetRigidBody()->velocity = glm::vec2(-velocity_x, velocity_y);
-					}
-				}
-
-				if ((attack_vector.x > 0 && attack_vector.y > 0) || (attack_vector.x < 0 && attack_vector.y > 0))
-					// bottom right or bottom left
-				{
-					if (angle <= 135)
-					{
-						object1->GetRigidBody()->velocity = glm::vec2(-velocity_x, velocity_y);
-					}
-					else
-					{
-						object1->GetRigidBody()->velocity = glm::vec2(velocity_x, -velocity_y);
-					}
-				}
-			}
-			break;
-			default:
-
-				break;
-			}
-
-			return true;
-		}
-		return false;
+		p1_center = glm::vec2(p1.x + p1_width * 0.5f, p1.y + p1_height * 0.5f);
 	}
-	object2->GetRigidBody()->isColliding = false;
+	else
+	{
+		p1_center = p1;
+	}
+
+	if (circle->GetType() == GameObjectType::BLOCK || circle->GetType() == GameObjectType::BLOCK_FIX)
+	{
+		p2_center = glm::vec2(p2.x + p2_width * 0.5f, p2.y + p2_height * 0.5f);
+	}
+	else
+	{
+		p2_center = p2;
+	}
+
+
+	glm::vec2 displacement = p2_center - p1_center;
+	glm::vec2 direction = Util::Normalize(displacement);
+
+	// Specific point in the direction between Circle and AABB 
+	glm::vec2 circleRadius = -direction * (p2_width * 0.5f);
+	glm::vec2 circlePoint = p2_center + circleRadius;
+	glm::vec2 circleBottom = p2_center + p2_height * 0.5f;
+
+	float displacementX = circlePoint.x - p1_center.x;
+	float displacementY;
+
+	// To calculate with correct direction
+	if (aabb->GetType() != GameObjectType::BLOCK_FIX)
+	{
+		displacementY = circlePoint.y - p1_center.y;
+	}
+	else
+	{
+		displacementY = circleBottom.y - p1_center.y;
+	}
+
+	float distanceX = abs(displacementX);
+	float distanceY = abs(displacementY);
+
+
+	// If the value of the overlaps are greater than 0, it means that objects are collided
+	float overlapX = (p1_width * 0.5f) - distanceX;
+	float overlapY = (p1_height * 0.5f) - distanceY;
+
+
+	glm::vec2 totalMomentum = aabb->GetMomentum() + circle->GetMomentum();
+	float COR1 = aabb->GetMaterialCOR();
+	float COR2 = circle->GetMaterialCOR();
+
+
+	if (overlapY > 0 && overlapX > 0)
+	{
+		//Move along X and than bounce the object off
+		if (overlapX < overlapY)
+		{
+			circle->GetTransform()->position = circle->GetTransform()->position + direction * overlapX;
+			circle->SetVelocity(direction * (totalMomentum * COR2) / circle->GetMass());
+
+			// Bounce for another object, but except Fixed_Block
+			if (aabb->GetType() != GameObjectType::BLOCK_FIX)
+			{
+				aabb->SetVelocity(-direction * (totalMomentum * COR1) / aabb->GetMass());
+			}
+
+		}
+		//Move along Y and than bounce the object off
+		else
+		{
+			circle->GetTransform()->position = circle->GetTransform()->position + direction * overlapY;
+			circle->SetVelocity(direction * (totalMomentum * COR2) / circle->GetMass());
+
+			if (aabb->GetType() != GameObjectType::BLOCK_FIX)
+			{
+				aabb->SetVelocity(-direction * (totalMomentum * COR1) / aabb->GetMass());
+			}
+		}
+		return true;
+	}
 	return false;
 
 }

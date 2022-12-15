@@ -3,14 +3,16 @@
 #define __PLAY_SCENE__
 
 #include "Scene.h"
-#include "Enemy.h"
 #include "Player.h"
 #include "Button.h"
 #include "Label.h"
 #include "Boundary.h"
 #include "Projectile.h"
+#include "Arrow.h"
+#include "Block.h"
 #include "PhysicsEngine.h"
 #include "CollisionManager.h"
+#include "Enemy.h"
 
 //const float PHYSICS_TIMESTEP = 1.0f / 60.0f;
 
@@ -37,7 +39,6 @@ private:
 	
 	glm::vec2 m_mousePosition;
 
-	Enemy* m_pPlaneSprite{};
 	Player* m_pPlayer{};
 	bool m_playerFacingRight{};
 
@@ -63,6 +64,7 @@ private:
 	float stX = 100.0f;
 	float damp;
 	float mass;
+	float blockMass = 10.0f;
 
 	bool isHighestPoint;
 	bool check = true;

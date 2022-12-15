@@ -26,22 +26,32 @@ void PlayScene::Start()
 	m_pCurrentInputType = static_cast<int>(InputType::KEYBOARD_MOUSE);
 
 	// Projectile
-	physicsEngine.AddObject(new Projectile(10.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE));
+	physicsEngine.AddObject(new Projectile(10.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE, MaterialType::STEEL));
 
 
 	// Targets
-	physicsEngine.AddObject(new Enemy(10, 0, 0, gravity, 0.5f, 450, groundPoint.y - 32, GameObjectType::ENEMY));
-	physicsEngine.AddObject(new Enemy(10, 0, 0, gravity, 0.5f, 550, groundPoint.y - 32, GameObjectType::ENEMY));
+	//physicsEngine.AddObject(new Enemy(10, 0, 0, gravity, 0.5f, 450, groundPoint.y - 32, GameObjectType::ENEMY));
+	//physicsEngine.AddObject(new Enemy(10, 0, 0, gravity, 0.5f, 550, groundPoint.y - 32, GameObjectType::ENEMY));
 
 	// Boundaries
 	//physicsEngine.AddBoundary(new Boundary(glm::vec2(350,300), 230.0f));
-	physicsEngine.AddBoundary(new Boundary(groundPoint, 90.0f, 1000.0f));
-	physicsEngine.AddBoundary(new Boundary(glm::vec2(700,400), 135.0f, 1000.0f));
+	//physicsEngine.AddBoundary(new Boundary(groundPoint, 90.0f, 1000.0f));
+	//physicsEngine.AddBoundary(new Boundary(glm::vec2(700,400), 135.0f, 1000.0f));
 	//physicsEngine.AddBoundary(new Boundary(glm::vec2(slingshotPoint.x + 20, slingshotPoint.y + 50), 0.0f, 50.0f));
 	//physicsEngine.AddBoundary(new Boundary(glm::vec2(slingshotPoint.x, slingshotPoint.y), 90.0f, 10.0f));
 	//physicsEngine.AddBoundary(new Boundary(glm::vec2(800, 400), 0.0f, 1000.0f));
 	//physicsEngine.AddBoundary(new Boundary(glm::vec2(0, 400), 0.0f, 1000.0f));
 	//physicsEngine.AddBoundary(new Boundary(glm::vec2(400, 000), 90.0f, 1000.0f));
+
+		// Blocks
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 400, 400, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 350, 250, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 400, 100, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
+
+	// Fixed-Block
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 0, 0, 100, 550, GameObjectType::BLOCK_FIX, MaterialType::TUNGSTEN));
+	physicsEngine.GetFixedBlocks().back()->SetWidth(600);
+	physicsEngine.GetFixedBlocks().back()->SetHeight(100);
 
 	const SDL_Color red = { 255, 0, 0, 255 };
 	m_pPointLabel = new Label("Score: " + to_string(score), "Consolas", 20, red, glm::vec2(50, 30));
@@ -57,47 +67,13 @@ void PlayScene::Draw()
 {
 	DrawDisplayList();
 
-	// For Checking and drawing highest point 
-	//if (!physicsEngine.GetProjectiles().empty())
-	//{
-	//	if (physicsEngine.GetProjectiles()[0]->GetVelocity().y >= 0 && check == true)
-	//	{
-	//		isHighestPoint = true;
-	//		highestPoint = glm::vec2(physicsEngine.GetProjectiles()[0]->GetTransform()->position.x, physicsEngine.GetProjectiles()[0]->GetTransform()->position.y - (physicsEngine.GetProjectiles()[0]->GetHeight() / 2));
-	//		const SDL_Color red = { 255, 0, 0, 255 };
-	//		m_pPointLabel = new Label("X: " + to_string(highestPoint.x), "Consolas", 20, red, glm::vec2(highestPoint.x + 20, highestPoint.y - 40));
-	//		m_pPointLabel->SetParent(this);
-	//		AddChild(m_pPointLabel);
-	//		m_pPointLabel2 = new Label("Y: " + to_string(highestPoint.y), "Consolas", 20, red, glm::vec2(highestPoint.x + 20, highestPoint.y - 20));
-	//		m_pPointLabel2->SetParent(this);
-	//		AddChild(m_pPointLabel2);
-	//		check = false;
-	//	}
-	//}
-	//if (isHighestPoint == true)
-	//{
-	//	Util::DrawFilledRect(highestPoint, 10, 10, glm::vec4(1, 0, 0, 1));
-	//}
-
-
-	/*const SDL_Color green = { 125, 255, 190, 255 };*/
-
-
+	// Draw Physics Objects
 	// Draw Physics Objects
 	if (!physicsEngine.GetProjectiles().empty())
 	{
 		for (int i = 0; i < physicsEngine.GetProjectiles().size(); i++)
 		{
 			physicsEngine.GetProjectiles()[i]->Draw();
-			
-		}
-	}
-
-	if (!physicsEngine.GetTargets().empty())
-	{
-		for (int i = 0; i < physicsEngine.GetTargets().size(); i++)
-		{
-			physicsEngine.GetTargets()[i]->Draw();
 
 		}
 	}
@@ -107,6 +83,30 @@ void PlayScene::Draw()
 		for (int i = 0; i < physicsEngine.GetBoundaries().size(); i++)
 		{
 			physicsEngine.GetBoundaries()[i]->Draw();
+		}
+	}
+
+	if (!physicsEngine.GetBlocks().empty())
+	{
+		for (int i = 0; i < physicsEngine.GetBlocks().size(); i++)
+		{
+			physicsEngine.GetBlocks()[i]->Draw();
+		}
+	}
+
+	if (!physicsEngine.GetFixedBlocks().empty())
+	{
+		for (int i = 0; i < physicsEngine.GetFixedBlocks().size(); i++)
+		{
+			physicsEngine.GetFixedBlocks()[i]->Draw();
+		}
+	}
+
+	if (!physicsEngine.GetArrows().empty())
+	{
+		for (int i = 0; i < physicsEngine.GetArrows().size(); i++)
+		{
+			physicsEngine.GetArrows()[i]->Draw();
 		}
 	}
 
@@ -145,19 +145,38 @@ void PlayScene::Update()
 		}
 	}
 
-	if (!physicsEngine.GetTargets().empty())
-	{
-		for (int i = 0; i < physicsEngine.GetTargets().size(); i++)
-		{
-			physicsEngine.GetTargets()[i]->Update();
-		}
-	}
-
 	if (!physicsEngine.GetBoundaries().empty())
 	{
 		for (int i = 0; i < physicsEngine.GetBoundaries().size(); i++)
 		{
 			physicsEngine.GetBoundaries()[i]->Update();
+		}
+	}
+
+	if (!physicsEngine.GetArrows().empty())
+	{
+		for (int i = 0; i < physicsEngine.GetArrows().size(); i++)
+		{
+			physicsEngine.GetArrows()[i]->Update();
+		}
+	}
+
+	if (!physicsEngine.GetBlocks().empty())
+	{
+		for (int i = 0; i < physicsEngine.GetBlocks().size(); i++)
+		{
+			physicsEngine.GetBlocks()[i]->Update();
+			//cout << physicsEngine.GetBlocks()[0]->GetVelocity().x << " / " << physicsEngine.GetBlocks()[0]->GetVelocity().y << endl;
+			//cout << physicsEngine.GetBlocks()[0]->GetWidth() << " / " << physicsEngine.GetBlocks()[0]->GetHeight() << endl;
+
+		}
+	}
+
+	if (!physicsEngine.GetFixedBlocks().empty())
+	{
+		for (int i = 0; i < physicsEngine.GetFixedBlocks().size(); i++)
+		{
+			physicsEngine.GetFixedBlocks()[i]->Update();
 		}
 	}
 
@@ -226,42 +245,37 @@ void PlayScene::HandleEvents()
 void PlayScene::ResetObject()
 {
 
-	if(!physicsEngine.GetProjectiles().empty())
+	if (!physicsEngine.GetProjectiles().empty())
 	{
 		physicsEngine.RemoveProjectile();
 		//physicsEngine.RemoveProjectile();
-		//physicsEngine.RemoveProjectile();
-		//physicsEngine.RemoveProjectile();
-		/*RemoveAllChildren();*/
-		isHighestPoint = false;
-		check = true;
 	}
-	//physicsEngine.AddObject(new Projectile(2.0f, angle, speed, gravity, 0.1f, physicsEngine.GetBoundaries().back()->GetStartPoint().x, physicsEngine.GetBoundaries().back()->GetStartPoint().y - 32.0f, GameObjectType::PROJECTILE));
+	physicsEngine.AddObject(new Projectile(10.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE, MaterialType::STEEL));
+	physicsEngine.GetProjectiles().back()->SetColor(RED);
 
-	//physicsEngine.AddObject(new Projectile(20.0f, angle, speed, gravity, 0.5f, 300,  300, GameObjectType::PROJECTILE));
-	//physicsEngine.GetProjectiles().back()->SetColor(RED);
+	//physicsEngine.AddObject(new Projectile(20.0f, angle + 90.0f, speed, gravity, 0.5f, 600, 300, GameObjectType::PROJECTILE, MaterialType::WOOD));
 
-	physicsEngine.AddObject(new Projectile(10.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE));
+	//if (!physicsEngine.GetArrows().empty())
+	//{
+	//	physicsEngine.RemoveArrow();
+	//	RemoveAllChildren();
+	//}
+	//physicsEngine.AddObject(new Arrow(20.0f, angle, speed, gravity, 0.5f, 200, 300, GameObjectType::ARROW, MaterialType::STEEL));
 
-	//physicsEngine.AddObject(new Projectile(8.0f, angle, speed, gravity, 0.1f, 600, 100, GameObjectType::PROJECTILE));
-	//physicsEngine.GetProjectiles().back()->SetColor(BLUE);
-
-	//physicsEngine.AddObject(new Projectile(8.0f, angle, speed, gravity, 0.8f, 700, 100, GameObjectType::PROJECTILE));
-	//physicsEngine.GetProjectiles().back()->SetColor(YELLOW);
-
-	if (!physicsEngine.GetTargets().empty())
+	if (!physicsEngine.GetBlocks().empty())
 	{
-		for (unsigned i = 0; i < physicsEngine.GetTargets().size(); i++)
-		{
-			physicsEngine.RemoveTarget();
-		}
+		physicsEngine.RemoveBlock();
+		physicsEngine.RemoveBlock();
+		physicsEngine.RemoveBlock();
 		
 	}
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 400, 400, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 350, 250, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 400, 100, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
 
-	physicsEngine.AddObject(new Enemy(10, 0, 0, 9.8f, 0.5f, 450, groundPoint.y - 32, GameObjectType::ENEMY));
-	physicsEngine.AddObject(new Enemy(10, 0, 0, 9.8f, 0.5f, 550, groundPoint.y - 32, GameObjectType::ENEMY));
 
 
+	//RemoveAllChildren();
 	score = 0;
 }
 
@@ -297,7 +311,7 @@ void PlayScene::GUI_Function()
 	// See examples by uncommenting the following - also look at imgui_demo.cpp in the IMGUI filter
 	//ImGui::ShowDemoWindow();
 	
-	ImGui::Begin("Game2005_A3_Heron_Jeong", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove);
+	ImGui::Begin("Game2005_A4_Heron_Jeong", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove);
 
 	//ImGui::Text("Player Input");
 	//ImGui::RadioButton("Keyboard / Mouse", &m_pCurrentInputType, static_cast<int>(InputType::KEYBOARD_MOUSE)); ImGui::SameLine();

@@ -147,6 +147,12 @@
     <ClCompile Include="..\src\Boundary.cpp">
       <Filter>Game Objects</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Arrow.cpp">
+      <Filter>Game Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Block.cpp">
+      <Filter>Game Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\StartScene.h">
@@ -306,6 +312,12 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Boundary.h">
+      <Filter>Game Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Arrow.h">
+      <Filter>Game Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Block.h">
       <Filter>Game Objects</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,7 +5,7 @@
 class Projectile : public PhysicsEngine
 {
 public:
-	Projectile(float mass, float angle, float speed, float gravity, float damping, float startX, float startY, GameObjectType type);
+	Projectile(float mass, float angle, float speed, float gravity, float damping, float startX, float startY, GameObjectType type, MaterialType mtype);
 	~Projectile() override;
 
 	// Life Cycle Functions

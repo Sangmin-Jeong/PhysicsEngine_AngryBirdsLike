@@ -2,7 +2,7 @@
 #include "TextureManager.h"
 #include "Util.h"
 
-Projectile::Projectile(float mass, float angle, float speed, float gravity, float damping, float startX, float startY, GameObjectType type) : PhysicsEngine(mass, angle, speed, gravity, damping, startX, startY, type)
+Projectile::Projectile(float mass, float angle, float speed, float gravity, float damping, float startX, float startY, GameObjectType type, MaterialType mtype) : PhysicsEngine(mass, angle, speed, gravity, damping, startX, startY, type, mtype)
 {
 	SetMovementVals(mass, angle, speed, gravity, damping, startX, startY, type);
 	TextureManager::Instance().LoadSpriteSheet(

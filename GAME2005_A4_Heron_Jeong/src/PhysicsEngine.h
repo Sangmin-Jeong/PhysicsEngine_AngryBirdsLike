@@ -11,19 +11,25 @@
 #include <string>
 #include <vector>
 #include <cmath>
-
-// enums
 #include "GameObjectType.h"
 
 using namespace std;
 
 const float PHYSICS_TIMESTEP = 1.0f / 60.0f;
 
+// enums
+enum class MaterialType {
+	RUBBER,
+	WOOD,
+	STEEL,
+	TUNGSTEN,
+};
+
 class PhysicsEngine
 {
 public:
 	PhysicsEngine();
-	PhysicsEngine(float mass,float angle, float speed, float gravity, float damping, float startX, float startY, GameObjectType type);
+	PhysicsEngine(float mass,float angle, float speed, float gravity, float damping, float startX, float startY, GameObjectType type, MaterialType mtype);
 	virtual ~PhysicsEngine();
 
 	// Draw the object
@@ -77,6 +83,8 @@ public:
 	bool GetIsCollided() { return isCollided; }
 	glm::vec2 GetMomentum() { return momentum; }
 	glm::vec2 GetTotalMomentum() { return totalMomentum; }
+	float GetMaterialCOR() { return materialCOR; }
+	char* GetMaterial() { return material; }
 
 	void SetAngle(float v) { launchAngleDegrees = v; }
 	void SetSpeed(float v) { launchSpeed = v; }
@@ -101,9 +109,15 @@ public:
 	vector<PhysicsEngine*> GetProjectiles() { return m_pProjectiles; }
 	vector<PhysicsEngine*> GetTargets() { return m_pTargets; }
 	vector<Boundary*> GetBoundaries() { return m_pBoundaries; }
+	vector<PhysicsEngine*> GetBlocks() { return m_pBlocks; }
+	vector<PhysicsEngine*> GetFixedBlocks() { return m_pFixedBlocks; }
+	vector<PhysicsEngine*> GetArrows() { return m_pArrows; }
 	void AddObject(PhysicsEngine* object) { physicsObjects.push_back(object); }
 	void RemoveProjectile() { m_pProjectiles.pop_back(); }
 	void RemoveTarget() { m_pTargets.pop_back(); }
+	void RemoveArrow() { m_pArrows.pop_back(); }
+	void RemoveBlock() { m_pBlocks.pop_back(); }
+	void RemoveFixedBlock() { m_pFixedBlocks.pop_back(); }
 	void AddBoundary(Boundary* boundary) { m_pBoundaries.push_back(boundary); }
 
 	void SetSize(int s) { size = s; }
@@ -114,6 +128,9 @@ private:
 	inline static vector<PhysicsEngine*> physicsObjects;
 	inline static vector<PhysicsEngine*> m_pProjectiles;
 	inline static vector<PhysicsEngine*> m_pTargets;
+	inline static vector<PhysicsEngine*> m_pBlocks;
+	inline static vector<PhysicsEngine*> m_pFixedBlocks;
+	inline static vector<PhysicsEngine*> m_pArrows;
 	inline static vector<Boundary*> m_pBoundaries;
 	inline static int size;
 
@@ -172,6 +189,9 @@ private:
 
 	glm::vec2 momentum;
 	glm::vec2 totalMomentum;
+
+	float materialCOR;
+	char* material;
 
 	bool isCollided = false;
 
