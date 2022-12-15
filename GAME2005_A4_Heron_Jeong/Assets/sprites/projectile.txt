@@ -1,0 +1,10 @@
+projectile1 0 0 16 16
+projectile2 16 0 16 16
+projectile3 32 0 16 16
+projectile4 48 0 16 16
+projectile5 64 0 16 16
+projectile6 80 0 16 16
+projectile7 96 0 16 16
+projectile8 112 0 16 16
+projectile9 128 0 16 16
+projectile10 144 0 16 16
