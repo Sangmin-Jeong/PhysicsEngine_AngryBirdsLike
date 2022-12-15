@@ -28,6 +28,7 @@ public:
 	virtual void Update() override;
 	virtual void Clean() override;
 	virtual void HandleEvents() override;
+	void ChangeProjectile();
 	void ResetObject();
 
 	static inline void SetScore(int i) { score = i; }
@@ -82,7 +83,7 @@ private:
 
 
 	// Slingshot
-	glm::vec2 slingshotPoint = glm::vec2(200.0f, 400.0f);
+	glm::vec2 slingshotPoint = glm::vec2(200.0f, 450.0f);
 	bool IsSelected = false;
 	float slingshotPower = 8.0f;
 

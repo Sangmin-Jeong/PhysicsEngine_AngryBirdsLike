@@ -22,7 +22,7 @@ int main(int argc, char* args[])
 	MoveWindow(window_handle, 100, 700, 800, 200, TRUE);
 
 	// Display Main SDL Window
-	Game::Instance().Init("GAME2005_A3_Heron_Jeong", 100, 100, 800, 600, false);
+	Game::Instance().Init("GAME2005_A4_Heron_Jeong", 100, 100, 800, 600, false);
 
 	// Main Game Loop
 	while (Game::Instance().IsRunning())

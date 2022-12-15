@@ -49,9 +49,9 @@ void PlayScene::Start()
 	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 400, 100, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
 
 	// Fixed-Block
-	physicsEngine.AddObject(new Block(blockMass, 0, 0, 0, 0, 100, 550, GameObjectType::BLOCK_FIX, MaterialType::TUNGSTEN));
-	physicsEngine.GetFixedBlocks().back()->SetWidth(600);
-	physicsEngine.GetFixedBlocks().back()->SetHeight(100);
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 0, 0, 0, 550, GameObjectType::BLOCK_FIX, MaterialType::TUNGSTEN));
+	physicsEngine.GetFixedBlocks().back()->SetWidth(800);
+	physicsEngine.GetFixedBlocks().back()->SetHeight(50);
 
 	const SDL_Color red = { 255, 0, 0, 255 };
 	m_pPointLabel = new Label("Score: " + to_string(score), "Consolas", 20, red, glm::vec2(50, 30));
@@ -122,9 +122,9 @@ void PlayScene::Update()
 	m_pPointLabel->SetText("Score: " + to_string(score));
 
 	//Time
-	//currentTime = SDL_GetTicks();
-	//elapsedTime = (currentTime - startTime) / 1000.0;
-	//cout << elapsedTime << endl;
+	currentTime = SDL_GetTicks();
+	elapsedTime = (currentTime - startTime) / 1000.0;
+	/*cout << elapsedTime << endl;*/
 
 	if (!physicsEngine.GetProjectiles().empty())
 	{
@@ -194,50 +194,116 @@ void PlayScene::HandleEvents()
 
 	GetKeyboardInput();
 
-	// Checking if Projectile is clicked or not
-	if (Util::Distance(EventManager::Instance().GetMousePosition(), physicsEngine.GetProjectiles().back()->GetTransform()->position)
-		< physicsEngine.GetProjectiles().back()->GetWidth())
-		
+	if (!physicsEngine.GetProjectiles().empty())
 	{
-		IsSelected = true;
-	}
-	else
-	{
-		IsSelected = false;
-	}
+		// Checking if Projectile is clicked or not
+		if (Util::Distance(EventManager::Instance().GetMousePosition(), physicsEngine.GetProjectiles().back()->GetTransform()->position)
+			< physicsEngine.GetProjectiles().back()->GetWidth())
 
-	// Slingshot
-
-	// Pressed mouse button
-	if (EventManager::Instance().GetMouseButton(0) && !EventManager::Instance().MouseReleased(1) && IsSelected)
-	{
-		// Distance check between mouse_point and slingshot_point
-		auto distance = Util::Distance(EventManager::Instance().GetMousePosition(), slingshotPoint);
-
-		// Stop projectile movement when it is clicked
-		physicsEngine.GetProjectiles().back()->SetVelocity(glm::vec2(0.0f, 0.0f));
-
-		// Enough close mouse_position and projectile_position
-		if (distance < 200)
 		{
-			physicsEngine.GetProjectiles().back()->GetTransform()->position = EventManager::Instance().GetMousePosition();
+			IsSelected = true;
 		}
-		
+		else
+		{
+			IsSelected = false;
+		}
+
+		// Slingshot
+
+		// Pressed mouse button
+		if (EventManager::Instance().GetMouseButton(0) && !EventManager::Instance().MouseReleased(1) && IsSelected)
+		{
+			// Distance check between mouse_point and slingshot_point
+			auto distance = Util::Distance(EventManager::Instance().GetMousePosition(), slingshotPoint);
+
+			// Stop projectile movement when it is clicked
+			physicsEngine.GetProjectiles().back()->SetVelocity(glm::vec2(0.0f, 0.0f));
+
+			// Enough close mouse_position and projectile_position
+			if (distance < 200)
+			{
+				physicsEngine.GetProjectiles().back()->GetTransform()->position = EventManager::Instance().GetMousePosition();
+			}
+
+		}
+		// Released mouse button
+		else if (EventManager::Instance().MouseReleased(1) && IsSelected)
+		{
+			speed = Util::Distance(physicsEngine.GetProjectiles().back()->GetTransform()->position, slingshotPoint);
+			glm::vec2 direction = slingshotPoint - physicsEngine.GetProjectiles().back()->GetTransform()->position;
+			glm::vec2 nomal_direction = Util::Normalize(direction);
+
+			physicsEngine.GetProjectiles().back()->SetGravity(9.8f);
+			physicsEngine.GetProjectiles().back()->SetAccelerationGravity();
+
+			physicsEngine.GetProjectiles().back()->SetVelocity(nomal_direction * (speed * slingshotPower / physicsEngine.GetProjectiles().back()->GetMass()));
+
+			speed = 0.0f;
+
+		}
 	}
-	// Released mouse button
-	else if(EventManager::Instance().MouseReleased(1) && IsSelected)
+
+	if (!physicsEngine.GetArrows().empty())
 	{
-		speed = Util::Distance(physicsEngine.GetProjectiles().back()->GetTransform()->position, slingshotPoint);
-		glm::vec2 direction = slingshotPoint - physicsEngine.GetProjectiles().back()->GetTransform()->position;
-		glm::vec2 nomal_direction = Util::Normalize(direction);
+		// Checking if Projectile is clicked or not
+		if (Util::Distance(EventManager::Instance().GetMousePosition(), physicsEngine.GetArrows().back()->GetTransform()->position)
+			< physicsEngine.GetArrows().back()->GetWidth())
 
-		physicsEngine.GetProjectiles().back()->SetGravity(9.8f);
-		physicsEngine.GetProjectiles().back()->SetAccelerationGravity();
+		{
+			IsSelected = true;
+		}
+		else
+		{
+			IsSelected = false;
+		}
 
-		physicsEngine.GetProjectiles().back()->SetVelocity(nomal_direction * (speed * slingshotPower / physicsEngine.GetProjectiles().back()->GetMass()));
+		// Slingshot
 
-		speed = 0.0f;
+		// Pressed mouse button
+		if (EventManager::Instance().GetMouseButton(0) && !EventManager::Instance().MouseReleased(1) && IsSelected)
+		{
+			// Distance check between mouse_point and slingshot_point
+			auto distance = Util::Distance(EventManager::Instance().GetMousePosition(), slingshotPoint);
 
+			// Stop projectile movement when it is clicked
+			physicsEngine.GetArrows().back()->SetVelocity(glm::vec2(0.0f, 0.0f));
+
+			// Enough close mouse_position and projectile_position
+			if (distance < 200)
+			{
+				physicsEngine.GetArrows().back()->GetTransform()->position = EventManager::Instance().GetMousePosition();
+			}
+
+		}
+		// Released mouse button
+		else if (EventManager::Instance().MouseReleased(1) && IsSelected)
+		{
+			speed = Util::Distance(physicsEngine.GetArrows().back()->GetTransform()->position, slingshotPoint);
+			glm::vec2 direction = slingshotPoint - physicsEngine.GetArrows().back()->GetTransform()->position;
+			glm::vec2 nomal_direction = Util::Normalize(direction);
+
+			physicsEngine.GetArrows().back()->SetGravity(9.8f);
+			physicsEngine.GetArrows().back()->SetAccelerationGravity();
+
+			physicsEngine.GetArrows().back()->SetVelocity(nomal_direction * (speed * slingshotPower / physicsEngine.GetArrows().back()->GetMass()));
+
+			speed = 0.0f;
+
+		}
+	}
+}
+
+void PlayScene::ChangeProjectile()
+{
+	if (!physicsEngine.GetProjectiles().empty())
+	{
+		physicsEngine.RemoveProjectile();
+		physicsEngine.AddObject(new Arrow(20.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::ARROW, MaterialType::STEEL));
+	}
+	else if (!physicsEngine.GetArrows().empty())
+	{
+		physicsEngine.RemoveArrow();
+		physicsEngine.AddObject(new Projectile(10.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE, MaterialType::STEEL));
 	}
 
 }
@@ -251,7 +317,6 @@ void PlayScene::ResetObject()
 		//physicsEngine.RemoveProjectile();
 	}
 	physicsEngine.AddObject(new Projectile(10.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE, MaterialType::STEEL));
-	physicsEngine.GetProjectiles().back()->SetColor(RED);
 
 	//physicsEngine.AddObject(new Projectile(20.0f, angle + 90.0f, speed, gravity, 0.5f, 600, 300, GameObjectType::PROJECTILE, MaterialType::WOOD));
 
@@ -274,32 +339,39 @@ void PlayScene::ResetObject()
 	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 400, 100, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
 
 
-
 	//RemoveAllChildren();
 	score = 0;
 }
 
 void PlayScene::GetKeyboardInput()
 {
-	if (EventManager::Instance().IsKeyDown(SDL_SCANCODE_ESCAPE))
+	// Timer to avoid double input.
+	if (elapsedTime > 1.0)
 	{
-		Game::Instance().Quit();
-	}
-
-	if (EventManager::Instance().IsKeyDown(SDL_SCANCODE_1))
-	{
-		Game::Instance().ChangeSceneState(SceneState::START);
-	}
-
-	if (EventManager::Instance().IsKeyDown(SDL_SCANCODE_2))
-	{
-		Game::Instance().ChangeSceneState(SceneState::END);
-	}
-
-	// Lunch a projectile
-	if (EventManager::Instance().IsKeyDown(SDL_SCANCODE_SPACE))
-	{
-		ResetObject();
+		if (EventManager::Instance().IsKeyDown(SDL_SCANCODE_ESCAPE))
+		{
+			Game::Instance().Quit();
+		}
+		else if (EventManager::Instance().IsKeyDown(SDL_SCANCODE_1))
+		{
+			Game::Instance().ChangeSceneState(SceneState::START);
+		}
+		else if (EventManager::Instance().IsKeyDown(SDL_SCANCODE_2))
+		{
+			Game::Instance().ChangeSceneState(SceneState::END);
+		}
+		// Reset a projectile
+		else if (EventManager::Instance().IsKeyDown(SDL_SCANCODE_SPACE))
+		{
+			ResetObject();
+			startTime = SDL_GetTicks();
+		}
+		// Change a projectile
+		else if (EventManager::Instance().IsKeyDown(SDL_SCANCODE_C))
+		{
+			ChangeProjectile();
+			startTime = SDL_GetTicks();
+		}
 	}
 }
 
