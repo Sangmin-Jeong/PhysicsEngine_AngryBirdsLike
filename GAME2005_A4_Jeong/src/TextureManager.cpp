@@ -284,6 +284,11 @@ void TextureManager::PlayAnimation(
 		dest_rect.w = texture_width * 3;
 		dest_rect.h = texture_height * 3;
 	}
+	else if (sprite_sheet_name == "arrowSprites")
+	{
+		dest_rect.w = texture_width * 2;
+		dest_rect.h = texture_height * 2;
+	}
 	else
 	{
 		dest_rect.w = texture_width;

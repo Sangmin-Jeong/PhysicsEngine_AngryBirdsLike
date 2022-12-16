@@ -16,9 +16,9 @@ PhysicsEngine::PhysicsEngine(float mass, float angle, float speed, float gravity
 	{
 		m_pProjectiles.push_back(this);
 	}
-	else if (GetType() == GameObjectType::PLANE)
+	else if (GetType() == GameObjectType::ENEMY)
 	{
-		m_pTargets.push_back(this);
+		m_pEnemies.push_back(this);
 	}
 	else if (GetType() == GameObjectType::ARROW)
 	{
@@ -62,7 +62,7 @@ void PhysicsEngine::Draw()
 {
 	float scale = 3.0f;
 	// Circle
-	if (GetType() == GameObjectType::PROJECTILE || GetType() == GameObjectType::PLANE)
+	if (GetType() == GameObjectType::PROJECTILE || GetType() == GameObjectType::ENEMY)
 	{
 		Util::DrawCircle(GetTransform()->position, GetWidth() * 0.5f, Default);
 	}
@@ -117,22 +117,10 @@ void PhysicsEngine::Update()
 	// Collision check between projectiles and Targets
 	for (unsigned i = 0; i < m_pProjectiles.size(); i++)
 	{
-		for (unsigned j = 0; j < m_pTargets.size(); j++)
+		for (unsigned j = 0; j < m_pEnemies.size(); j++)
 		{
-			if (CollisionManager::CircleCircleCheck(m_pProjectiles[i], m_pTargets[j]))
+			if (CollisionManager::CircleCircleCheck(m_pProjectiles[i], m_pEnemies[j]))
 			{
-				// p = m * v (Momentum = Mass * Velocity)
-				// add each projectile’s momentum to the total momentum when it collided, using the formula 
-				totalMomentum = m_pProjectiles[i]->GetMomentum() + m_pTargets[j]->GetMomentum();
-				glm::vec2 direction = m_pTargets[j]->GetTransform()->position - m_pProjectiles[i]->GetTransform()->position;
-				glm::vec2 nomal_direction = Util::Normalize(direction);
-
-				// To convert momentum to velocity, using the formula velocity equal total momentum divided by 2 and divided by mass.
-				// v = p / m (Velocity = (totalMomentum / 2) / mass) 
-				m_pProjectiles[i]->SetVelocity(-nomal_direction * ((totalMomentum * 0.5f) / m_pProjectiles[i]->GetMass()));
-				m_pTargets[j]->SetVelocity(nomal_direction * ((totalMomentum * 0.5f) / m_pTargets[j]->GetMass()));
-
-
 				break;
 			}
 		}
@@ -163,113 +151,83 @@ void PhysicsEngine::Update()
 		}
 	}
 
-	// Check Collision between Projectiles and Boundaries
-	for (unsigned i = 0; i < m_pProjectiles.size(); i++)
+	// Collision detection between Enemies
+	if (m_pEnemies.size() >= 2)
 	{
-		for (unsigned k = 0; k < m_pBoundaries.size(); k++)
+		for (unsigned i = 0; i < m_pEnemies.size(); i++)
 		{
-			if (CollisionManager::LineCircleCheck(m_pBoundaries[k], m_pProjectiles[i]));
+			for (unsigned j = i + 1; j < m_pEnemies.size(); j++)
 			{
-				if (m_pProjectiles[i]->GetIsCollided() == true)
+				if (CollisionManager::CircleCircleCheck(m_pEnemies[i], m_pEnemies[i + 1]))
 				{
-					// Normal Force
-					float mgy = accelerationGravity.y * cos((m_pBoundaries[k]->GetAngle() - 90.0f) * Util::Deg2Rad);
-					m_pProjectiles[i]->SetNormalForce(m_pBoundaries[k]->GetNormal() * mgy);
-
-					// Applied Force 
-					float mgx = accelerationGravity.y * sin((m_pBoundaries[k]->GetAngle() - 90.0f) * Util::Deg2Rad);
-					m_pProjectiles[i]->SetAppliedForce(Util::AngleMagnitudeToVec2(m_pBoundaries[k]->GetAngle() + 90.0f, mgx));
-
-					// Direction of friction
-					glm::vec2 normalFriction = Util::Normalize(-appliedForce);
-
-					//to get the friction force, we used the formula, 
-					// FrictionForce = coefficients of friction * parallel NormalForce(mgx)
-					m_pProjectiles[i]->SetFriction((mgx * m_pProjectiles[i]->GetDamping()) * normalFriction);
-
 					break;
 				}
 			}
 		}
 	}
 
-	// Check Collision between Target and Boundaries
-	for (unsigned l = 0; l < m_pTargets.size(); l++)
+	// Collision check between Enemies and Blocks
+	for (unsigned i = 0; i < m_pEnemies.size(); i++)
 	{
-		for (unsigned k = 0; k < m_pBoundaries.size(); k++)
+		for (unsigned j = 0; j < m_pBlocks.size(); j++)
 		{
-			if (CollisionManager::LineCircleCheck(m_pBoundaries[k], m_pTargets[l]));
+			if (CollisionManager::CircleAABBCheck(m_pBlocks[j], m_pEnemies[i]))
 			{
-				if (m_pTargets[l]->GetIsCollided() == true)
-				{
-
-					// Normal Force
-					float mgy = accelerationGravity.y * cos((m_pBoundaries[k]->GetAngle() - 90.0f) * Util::Deg2Rad);
-					m_pTargets[l]->SetNormalForce(m_pBoundaries[k]->GetNormal() * mgy);
-
-					// Applied Force 
-					float mgx = accelerationGravity.y * sin((m_pBoundaries[k]->GetAngle() - 90.0f) * Util::Deg2Rad);
-					m_pTargets[l]->SetAppliedForce(Util::AngleMagnitudeToVec2(m_pBoundaries[k]->GetAngle() + 90.0f, mgx));
-
-					// Direction of friction
-					glm::vec2 normalFriction = Util::Normalize(-appliedForce);
-
-					// FrictionForce = coefficients of friction * parallel NormalForce
-					m_pTargets[l]->SetFriction((mgx * m_pTargets[l]->GetDamping()) * normalFriction);
-
-					break;
-				}
+				break;
 			}
 		}
 	}
 
-	// Collision detection between Targets
-	if (m_pTargets.size() >= 2)
+	// Collision check between Enemies and Fixed_Blocks
+	for (unsigned i = 0; i < m_pEnemies.size(); i++)
 	{
-		for (unsigned i = 0; i < m_pTargets.size(); i++)
+		for (unsigned j = 0; j < m_pFixedBlocks.size(); j++)
 		{
-			// to avoid increasing 'i' is bigger than amount of objects in array
-			if (i + 1 < m_pTargets.size())
-				if (CollisionManager::CircleCircleCheck(m_pTargets[i], m_pTargets[i + 1]))
-				{
-					// p = m * v (Momentum = Mass * Velocity)
-					totalMomentum = m_pTargets[i]->GetMomentum() + m_pTargets[i + 1]->GetMomentum();
-					glm::vec2 direction = m_pTargets[i + 1]->GetTransform()->position - m_pTargets[i]->GetTransform()->position;
-					glm::vec2 nomal_direction = Util::Normalize(direction);
-
-					// v = p / m (Velocity = (totalMomentum / 2) / mass) 
-					m_pTargets[i]->SetVelocity(-nomal_direction * ((totalMomentum * 0.5f) / m_pTargets[i]->GetMass()));
-					m_pTargets[i + 1]->SetVelocity(nomal_direction * ((totalMomentum * 0.5f) / m_pTargets[i + 1]->GetMass()));
-
-					break;
-				}
+			if (CollisionManager::CircleAABBCheck(m_pFixedBlocks[j], m_pEnemies[i]))
+			{
+				break;
+			}
 		}
 	}
+
 
 	// Collision detection between Projectiles
-	if (m_pProjectiles.size() >= 2)
+	//if (m_pProjectiles.size() >= 2)
+	//{
+	//	for (unsigned i = 0; i < m_pProjectiles.size(); i++)
+	//	{
+	//		// to avoid increasing 'i' is bigger than amount of objects in array
+	//		if (i + 1 < m_pProjectiles.size())
+	//			if (CollisionManager::CircleCircleCheck(m_pProjectiles[i], m_pProjectiles[i + 1]))
+	//			{
+	//				// p = m * v (Momentum = Mass * Velocity)
+	//				totalMomentum = m_pProjectiles[i]->GetMomentum() + m_pProjectiles[i + 1]->GetMomentum();
+	//				glm::vec2 direction = m_pProjectiles[i + 1]->GetTransform()->position - m_pProjectiles[i]->GetTransform()->position;
+	//				glm::vec2 nomal_direction = Util::Normalize(direction);
+
+	//				// v = p / m (Velocity = (totalMomentum / 2) / mass)
+	//				// Suppose that Wooden ball's Coefficient of restitution is 0.6
+	//				// Rubber ball's Coefficient of restitution is 0.8 , Steel ball's 0.5
+	//				cout << m_pProjectiles[i]->GetMaterialCOR() << " / " << m_pProjectiles[i]->GetMaterial() << endl;
+	//				m_pProjectiles[i]->SetVelocity(-nomal_direction * ((totalMomentum * m_pProjectiles[i]->GetMaterialCOR()) / m_pProjectiles[i]->GetMass()));
+	//				m_pProjectiles[i + 1]->SetVelocity(nomal_direction * ((totalMomentum * m_pProjectiles[i + 1]->GetMaterialCOR()) / m_pProjectiles[i + 1]->GetMass()));
+
+	//				break;
+	//			}
+	//	}
+	//}
+
+	// Collision check between Arrows and Targets
+	for (unsigned i = 0; i < m_pArrows.size(); i++)
 	{
-		for (unsigned i = 0; i < m_pProjectiles.size(); i++)
+		for (unsigned j = 0; j < m_pEnemies.size(); j++)
 		{
-			// to avoid increasing 'i' is bigger than amount of objects in array
-			if (i + 1 < m_pProjectiles.size())
-				if (CollisionManager::CircleCircleCheck(m_pProjectiles[i], m_pProjectiles[i + 1]))
-				{
-					// p = m * v (Momentum = Mass * Velocity)
-					totalMomentum = m_pProjectiles[i]->GetMomentum() + m_pProjectiles[i + 1]->GetMomentum();
-					glm::vec2 direction = m_pProjectiles[i + 1]->GetTransform()->position - m_pProjectiles[i]->GetTransform()->position;
-					glm::vec2 nomal_direction = Util::Normalize(direction);
-
-					// v = p / m (Velocity = (totalMomentum / 2) / mass)
-					// Suppose that Wooden ball's Coefficient of restitution is 0.6
-					// Rubber ball's Coefficient of restitution is 0.8 , Steel ball's 0.5
-					cout << m_pProjectiles[i]->GetMaterialCOR() << " / " << m_pProjectiles[i]->GetMaterial() << endl;
-					m_pProjectiles[i]->SetVelocity(-nomal_direction * ((totalMomentum * m_pProjectiles[i]->GetMaterialCOR()) / m_pProjectiles[i]->GetMass()));
-					m_pProjectiles[i + 1]->SetVelocity(nomal_direction * ((totalMomentum * m_pProjectiles[i + 1]->GetMaterialCOR()) / m_pProjectiles[i + 1]->GetMass()));
-
-					break;
-				}
+			if (CollisionManager::CircleAABBCheck(m_pArrows[i], m_pEnemies[j]))
+			{
+				break;
+			}
 		}
+
 	}
 
 	// Collision detection between Arrows and Blocks
@@ -296,7 +254,7 @@ void PhysicsEngine::Update()
 		}
 	}
 
-	// Collision detection between Blocks and Fixed_Blocks
+
 	for (unsigned i = 0; i < m_pFixedBlocks.size(); i++)
 	{
 		for (unsigned j = 0; j < m_pBlocks.size(); j++)

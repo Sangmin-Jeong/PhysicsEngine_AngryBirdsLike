@@ -80,6 +80,10 @@ bool CollisionManager::AABBCheck(PhysicsEngine* object1, PhysicsEngine* object2)
 	glm::vec2 displacement = p2_center - p1_center;
 	glm::vec2 direction = Util::Normalize(displacement);
 
+	glm::vec2 p1Point = glm::vec2(p1_center.x, p1_center.y + p1_height * 0.5f);
+	glm::vec2 p1Direction = p1_center - p1Point;
+	glm::vec2 p1Normal = Util::Normalize(p1Direction);
+
 	float distanceX = abs(displacementX);
 	float distanceY = abs(displacementY);
 
@@ -88,12 +92,15 @@ bool CollisionManager::AABBCheck(PhysicsEngine* object1, PhysicsEngine* object2)
 	float overlapX = (p1_width / 2 + p2_width / 2) - distanceX;
 	float overlapY = (p1_height / 2 + p2_height / 2) - distanceY;
 
-	float directionX = Util::Sign(displacementX);
-	float directionY = Util::Sign(displacementY);
+	//float directionX = Util::Sign(displacementX);
+	//float directionY = Util::Sign(displacementY);
 
 	glm::vec2 totalMomentum = object2->GetMomentum() + object2->GetMomentum();
 	float COR1 = object1->GetMaterialCOR();
 	float COR2 = object2->GetMaterialCOR();
+
+	//if (object1->GetType() == GameObjectType::BLOCK_FIX)
+	//	cout << direction.x << " / " << direction.y << endl;
 
 
 	if (overlapY > 0 && overlapX > 0)
@@ -101,7 +108,7 @@ bool CollisionManager::AABBCheck(PhysicsEngine* object1, PhysicsEngine* object2)
 		//Move along X and than bounce the object off
 		if (overlapX < overlapY)
 		{
-			object2->GetTransform()->position = object2->GetTransform()->position + direction * overlapX;
+			object2->GetTransform()->position.x = object2->GetTransform()->position.x + direction.x * overlapX;
 			object2->SetVelocity(direction * (totalMomentum * COR2) / object2->GetMass());
 
 			// Bounce for another object, but except Fixed_Block
@@ -114,7 +121,7 @@ bool CollisionManager::AABBCheck(PhysicsEngine* object1, PhysicsEngine* object2)
 		//Move along Y and than bounce the object off
 		else
 		{
-			object2->GetTransform()->position = object2->GetTransform()->position + direction * overlapY;
+			object2->GetTransform()->position.y = object2->GetTransform()->position.y + p1Normal.y * overlapY;
 			object2->SetVelocity(direction * (totalMomentum * COR2) / object2->GetMass());
 
 			if (object1->GetType() != GameObjectType::BLOCK_FIX)
@@ -122,6 +129,8 @@ bool CollisionManager::AABBCheck(PhysicsEngine* object1, PhysicsEngine* object2)
 				object1->SetVelocity(-direction * (totalMomentum * COR1) / object1->GetMass());
 			}
 		}
+		//object1->SetIsActive(true);
+		//object2->SetIsActive(true);
 		return true;
 	}
 	return false;
@@ -329,6 +338,8 @@ bool CollisionManager::CircleAABBCheck(PhysicsEngine* aabb, PhysicsEngine* circl
 				aabb->SetVelocity(-direction * (totalMomentum * COR1) / aabb->GetMass());
 			}
 		}
+		//circle->SetIsActive(true);
+		//aabb->SetIsActive(true);
 		return true;
 	}
 	return false;
@@ -353,17 +364,31 @@ bool CollisionManager::CircleCircleCheck(PhysicsEngine* object1, PhysicsEngine* 
 		const auto circle_centre2 = object2->GetTransform()->position;
 		const auto circle_radius2 = static_cast<int>(std::max(object2->GetWidth() * 0.5f, object2->GetHeight() * 0.5f));
 
+		glm::vec2 displacement = circle_centre2 - circle_centre1;
+		glm::vec2 direction = Util::Normalize(displacement);
+
+		// p = m * v (Momentum = Mass * Velocity)
+		glm::vec2 totalMomentum = object1->GetMomentum() + object2->GetMomentum();
+		float COR1 = object1->GetMaterialCOR();
+		float COR2 = object2->GetMaterialCOR();
+
 		/*cout << CircleCircleDistance(circle_centre1, circle_radius1, circle_centre2, circle_radius2) << "  <=  " << (circle_radius1 * circle_radius1 * 3) << endl;*/
 		if (CircleCircleDistance(circle_centre1, circle_radius1, circle_centre2, circle_radius2) <= (circle_radius1 * circle_radius1 * 4.2))
 		{
-			if (!object1->GetRigidBody()->isColliding)
-			{
- 				object1->GetRigidBody()->isColliding = true;
-				//cout << "Collided" << endl;
-			}
+			// v = p / m (Velocity = (totalMomentum / 2) / mass) 
+			object1->SetVelocity(-direction * ((totalMomentum * 0.5f) / object1->GetMass()));
+			object2->SetVelocity(direction * ((totalMomentum * 0.5f) / object2->GetMass()));
+
+			//if (!object1->GetRigidBody()->isColliding)
+			//{
+ 		//		object1->GetRigidBody()->isColliding = true;
+			//	//cout << "Collided" << endl;
+			//}
+			//object1->SetIsActive(true);
+			//object2->SetIsActive(true);
 			return true;
 		}
-		object1->GetRigidBody()->isColliding = false;
+		//object1->GetRigidBody()->isColliding = false;
 		return false;
 	}
 

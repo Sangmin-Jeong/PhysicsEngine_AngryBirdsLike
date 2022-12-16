@@ -9,10 +9,10 @@ Block::Block(float mass, float angle, float speed, float gravity, float damping,
 	SetMovementVals(mass, angle, speed, gravity, damping, startX, startY, type);
 
 	// set frame width
-	SetWidth(150);
+	SetWidth(50);
 
 	// set frame height
-	SetHeight(100);
+	SetHeight(80);
 
 	GetTransform()->position = glm::vec2(GetStartingX(), GetStartingY());
 	GetRigidBody()->velocity = GetVelocity();

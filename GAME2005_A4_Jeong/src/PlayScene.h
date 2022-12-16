@@ -44,7 +44,7 @@ private:
 	bool m_playerFacingRight{};
 
 	//vector<PhysicsEngine*> m_pProjectiles;
-	//vector<PhysicsEngine*> m_pTargets;
+	//vector<PhysicsEngine*> m_pEnemies;
 
 	PhysicsEngine physicsEngine;
 
@@ -65,7 +65,7 @@ private:
 	float stX = 100.0f;
 	float damp;
 	float mass;
-	float blockMass = 10.0f;
+	float blockMass = 5.0f;
 
 	bool isHighestPoint;
 	bool check = true;
@@ -83,11 +83,11 @@ private:
 
 
 	// Slingshot
-	glm::vec2 slingshotPoint = glm::vec2(200.0f, 450.0f);
+	glm::vec2 slingshotPoint = glm::vec2(200.0f, 400.0f);
 	bool IsSelected = false;
-	float slingshotPower = 8.0f;
+	float slingshotPower = 10.0f;
 
-	glm::vec2 groundPoint = glm::vec2(600, 500);
+	glm::vec2 groundPoint = glm::vec2(600, 550);
 
 	glm::vec4 PURPLE = glm::vec4(0.8, 0.6, 0.8, 1);
 	glm::vec4 ORANGE = glm::vec4(1, 0.9, 0.8, 1);

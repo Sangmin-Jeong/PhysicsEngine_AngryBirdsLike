@@ -29,9 +29,9 @@ void PlayScene::Start()
 	physicsEngine.AddObject(new Projectile(10.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE, MaterialType::STEEL));
 
 
-	// Targets
-	//physicsEngine.AddObject(new Enemy(10, 0, 0, gravity, 0.5f, 450, groundPoint.y - 32, GameObjectType::ENEMY));
-	//physicsEngine.AddObject(new Enemy(10, 0, 0, gravity, 0.5f, 550, groundPoint.y - 32, GameObjectType::ENEMY));
+	// Enemies
+	physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 550, groundPoint.y - 36, GameObjectType::ENEMY, MaterialType::STEEL));
+	physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 650, groundPoint.y - 36, GameObjectType::ENEMY, MaterialType::STEEL));
 
 	// Boundaries
 	//physicsEngine.AddBoundary(new Boundary(glm::vec2(350,300), 230.0f));
@@ -43,15 +43,21 @@ void PlayScene::Start()
 	//physicsEngine.AddBoundary(new Boundary(glm::vec2(0, 400), 0.0f, 1000.0f));
 	//physicsEngine.AddBoundary(new Boundary(glm::vec2(400, 000), 90.0f, 1000.0f));
 
-		// Blocks
-	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 400, 400, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
-	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 350, 250, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
-	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 400, 100, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
-
 	// Fixed-Block
-	physicsEngine.AddObject(new Block(blockMass, 0, 0, 0, 0, 0, 550, GameObjectType::BLOCK_FIX, MaterialType::TUNGSTEN));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 0, 0, 0, groundPoint.y, GameObjectType::BLOCK_FIX, MaterialType::STEEL));
 	physicsEngine.GetFixedBlocks().back()->SetWidth(800);
 	physicsEngine.GetFixedBlocks().back()->SetHeight(50);
+
+	// Blocks
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 450, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 360, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 270, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 700, 450, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 700, 360, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 700, 270, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 200, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.GetBlocks().back()->SetWidth(300);
+	physicsEngine.GetBlocks().back()->SetHeight(50);
 
 	const SDL_Color red = { 255, 0, 0, 255 };
 	m_pPointLabel = new Label("Score: " + to_string(score), "Consolas", 20, red, glm::vec2(50, 30));
@@ -68,12 +74,20 @@ void PlayScene::Draw()
 	DrawDisplayList();
 
 	// Draw Physics Objects
-	// Draw Physics Objects
 	if (!physicsEngine.GetProjectiles().empty())
 	{
 		for (int i = 0; i < physicsEngine.GetProjectiles().size(); i++)
 		{
 			physicsEngine.GetProjectiles()[i]->Draw();
+
+		}
+	}
+
+	if (!physicsEngine.GetEnemies().empty())
+	{
+		for (int i = 0; i < physicsEngine.GetEnemies().size(); i++)
+		{
+			physicsEngine.GetEnemies()[i]->Draw();
 
 		}
 	}
@@ -110,7 +124,7 @@ void PlayScene::Draw()
 		}
 	}
 
-	Util::DrawFilledRect(slingshotPoint, 20, 100, RED);
+	Util::DrawFilledRect(slingshotPoint, 20, 150, RED);
 
 	SDL_SetRenderDrawColor(Renderer::Instance().GetRenderer(), 255, 255, 255, 255);
 }
@@ -180,6 +194,14 @@ void PlayScene::Update()
 		}
 	}
 
+	if (!physicsEngine.GetEnemies().empty())
+	{
+		for (int i = 0; i < physicsEngine.GetEnemies().size(); i++)
+		{
+			physicsEngine.GetEnemies()[i]->Update();
+
+		}
+	}
 }
 
 void PlayScene::Clean()
@@ -298,12 +320,14 @@ void PlayScene::ChangeProjectile()
 	if (!physicsEngine.GetProjectiles().empty())
 	{
 		physicsEngine.RemoveProjectile();
-		physicsEngine.AddObject(new Arrow(20.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::ARROW, MaterialType::STEEL));
+		physicsEngine.AddObject(new Arrow(20.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 15, GameObjectType::ARROW, MaterialType::STEEL));
+		slingshotPower = 20.0f;
 	}
 	else if (!physicsEngine.GetArrows().empty())
 	{
 		physicsEngine.RemoveArrow();
 		physicsEngine.AddObject(new Projectile(10.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE, MaterialType::STEEL));
+		slingshotPower = 10.0f;
 	}
 
 }
