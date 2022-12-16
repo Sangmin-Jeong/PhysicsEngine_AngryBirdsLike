@@ -357,40 +357,49 @@ int CollisionManager::CircleCircleDistance(glm::vec2 circle_centre1, int circle_
 
 bool CollisionManager::CircleCircleCheck(PhysicsEngine* object1, PhysicsEngine* object2)
 {
-	if (object1 != object2)
+
+	const auto circle_centre1 = object1->GetTransform()->position;
+	const auto circle_radius1 = static_cast<int>(std::max(object1->GetWidth() * 0.5f, object1->GetHeight() * 0.5f));
+	const auto circle_centre2 = object2->GetTransform()->position;
+	const auto circle_radius2 = static_cast<int>(std::max(object2->GetWidth() * 0.5f, object2->GetHeight() * 0.5f));
+
+	glm::vec2 displacement = circle_centre2 - circle_centre1;
+	glm::vec2 direction = Util::Normalize(displacement);
+
+	// p = m * v (Momentum = Mass * Velocity)
+	glm::vec2 totalMomentum = object1->GetMomentum() + object2->GetMomentum();
+	float COR1 = object1->GetMaterialCOR();
+	float COR2 = object2->GetMaterialCOR();
+
+	float distnace = Util::Distance(circle_centre2, circle_centre1);
+	float overlap = (circle_radius1 + circle_radius2) - distnace;
+
+	//if (object1->GetType() != GameObjectType::PROJECTILE)
+	//	cout << Util::Distance(circle_centre2, circle_centre1) << endl;
+	/*cout << CircleCircleDistance(circle_centre1, circle_radius1, circle_centre2, circle_radius2) << "  <=  " << (circle_radius1 * circle_radius2) << endl;*/
+
+	if (distnace <= (circle_radius1 + circle_radius2))
 	{
-		const auto circle_centre1 = object1->GetTransform()->position;
-		const auto circle_radius1 = static_cast<int>(std::max(object1->GetWidth() * 0.5f, object1->GetHeight() * 0.5f));
-		const auto circle_centre2 = object2->GetTransform()->position;
-		const auto circle_radius2 = static_cast<int>(std::max(object2->GetWidth() * 0.5f, object2->GetHeight() * 0.5f));
+		object1->GetTransform()->position = object1->GetTransform()->position + -direction * overlap;
+		object2->GetTransform()->position = object2->GetTransform()->position + direction * overlap;
 
-		glm::vec2 displacement = circle_centre2 - circle_centre1;
-		glm::vec2 direction = Util::Normalize(displacement);
+		// v = p / m (Velocity = (totalMomentum / 2) / mass) 
+		object1->SetVelocity(-direction * (totalMomentum * COR1) / object1->GetMass());
+		object2->SetVelocity(direction * (totalMomentum * COR2) / object2->GetMass());
 
-		// p = m * v (Momentum = Mass * Velocity)
-		glm::vec2 totalMomentum = object1->GetMomentum() + object2->GetMomentum();
-		float COR1 = object1->GetMaterialCOR();
-		float COR2 = object2->GetMaterialCOR();
-
-		/*cout << CircleCircleDistance(circle_centre1, circle_radius1, circle_centre2, circle_radius2) << "  <=  " << (circle_radius1 * circle_radius1 * 3) << endl;*/
-		if (CircleCircleDistance(circle_centre1, circle_radius1, circle_centre2, circle_radius2) <= (circle_radius1 * circle_radius1 * 4.2))
-		{
-			// v = p / m (Velocity = (totalMomentum / 2) / mass) 
-			object1->SetVelocity(-direction * ((totalMomentum * 0.5f) / object1->GetMass()));
-			object2->SetVelocity(direction * ((totalMomentum * 0.5f) / object2->GetMass()));
-
-			//if (!object1->GetRigidBody()->isColliding)
-			//{
- 		//		object1->GetRigidBody()->isColliding = true;
-			//	//cout << "Collided" << endl;
-			//}
-			//object1->SetIsActive(true);
-			//object2->SetIsActive(true);
-			return true;
-		}
-		//object1->GetRigidBody()->isColliding = false;
-		return false;
+		//if (!object1->GetRigidBody()->isColliding)
+		//{
+ 	//		object1->GetRigidBody()->isColliding = true;
+		//	//cout << "Collided" << endl;
+		//}
+		//object1->SetIsActive(true);
+		//object2->SetIsActive(true);
+	/*	cout << "CC " << endl;*/
+		return true;
 	}
+	//object1->GetRigidBody()->isColliding = false;
+	return false;
+	
 
 }
 

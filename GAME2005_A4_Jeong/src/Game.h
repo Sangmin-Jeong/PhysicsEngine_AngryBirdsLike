@@ -57,6 +57,8 @@ public:
 
 	[[nodiscard]] SDL_Window* GetWindow() const;
 
+	SceneState GetCurScene() { return m_currentSceneState; }
+
 private:
 	Game();
 	~Game();

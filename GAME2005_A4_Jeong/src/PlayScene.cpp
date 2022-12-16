@@ -26,12 +26,15 @@ void PlayScene::Start()
 	m_pCurrentInputType = static_cast<int>(InputType::KEYBOARD_MOUSE);
 
 	// Projectile
-	physicsEngine.AddObject(new Projectile(10.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE, MaterialType::STEEL));
-
+	physicsEngine.AddObject(new Projectile(10.0f, 0, 0, 0, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE, MaterialType::STEEL));
+	physicsEngine.GetProjectiles().back()->SetGravity(0.0f);
+	physicsEngine.GetProjectiles().back()->SetAccelerationGravity();
 
 	// Enemies
 	physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 550, groundPoint.y - 36, GameObjectType::ENEMY, MaterialType::STEEL));
 	physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 650, groundPoint.y - 36, GameObjectType::ENEMY, MaterialType::STEEL));
+	physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 600, 140, GameObjectType::ENEMY, MaterialType::STEEL));
+
 
 	// Boundaries
 	//physicsEngine.AddBoundary(new Boundary(glm::vec2(350,300), 230.0f));
@@ -88,7 +91,7 @@ void PlayScene::Draw()
 		for (int i = 0; i < physicsEngine.GetEnemies().size(); i++)
 		{
 			physicsEngine.GetEnemies()[i]->Draw();
-
+			//Util::DrawFilledRect(physicsEngine.GetEnemies()[i]->GetTransform()->position, 10, 10, RED);
 		}
 	}
 
@@ -134,6 +137,9 @@ void PlayScene::Update()
 	UpdateDisplayList();
 	//Score
 	m_pPointLabel->SetText("Score: " + to_string(score));
+
+	//cout << physicsEngine.GetEnemies().back()->GetMomentum().x << " / " << physicsEngine.GetEnemies().back()->GetMomentum().y << endl;
+	//cout << physicsEngine.GetProjectiles().back()->GetMomentum().x << " / " << physicsEngine.GetProjectiles().back()->GetMomentum().y << endl;
 
 	//Time
 	currentTime = SDL_GetTicks();
@@ -370,7 +376,7 @@ void PlayScene::ResetObject()
 void PlayScene::GetKeyboardInput()
 {
 	// Timer to avoid double input.
-	if (elapsedTime > 1.0)
+	if (elapsedTime > 0.5)
 	{
 		if (EventManager::Instance().IsKeyDown(SDL_SCANCODE_ESCAPE))
 		{

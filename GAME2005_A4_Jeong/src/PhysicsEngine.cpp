@@ -1,6 +1,7 @@
 #include "PhysicsEngine.h"
 #include "Util.h"
 #include "CollisionManager.h"
+#include "Game.h"
 #include "PlayScene.h"
 
 PhysicsEngine::PhysicsEngine()
@@ -304,22 +305,25 @@ void PhysicsEngine::ProjectileMovement()
 	//Projectile Movement
 
 	// Checking if object is collided with boundary or not
-	if (isCollided == true)
+	//if (isCollided == true)
+	//{
+	//	// On ground, appliedForce and friction are applied
+	//	netForce = appliedForce + friction;
+	//}
+	//else
+	//{
+	//	// In air, only gravity is applied
+	//	netForce = accelerationGravity;
+	//}
+	if(Game::Instance().GetCurScene() == SceneState::PLAY)
 	{
-		// On ground, appliedForce and friction are applied
-		netForce = appliedForce + friction;
-	}
-	else
-	{
-		// In air, only gravity is applied
 		netForce = accelerationGravity;
+		// a = F/m
+		acceleration = netForce / mass;
+		velocity += acceleration * deltaTime;
+		GetTransform()->position += velocity * deltaTime;
+		momentum = abs(mass * velocity);
 	}
-
-	// a = F/m
-	acceleration = netForce / mass;
-	velocity += acceleration * deltaTime;
-	GetTransform()->position += velocity * deltaTime;
-	momentum = abs(mass * velocity);
 }
 
 Transform* PhysicsEngine::GetTransform()
