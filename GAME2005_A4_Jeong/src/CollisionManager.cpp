@@ -87,21 +87,14 @@ bool CollisionManager::AABBCheck(PhysicsEngine* object1, PhysicsEngine* object2)
 	float distanceX = abs(displacementX);
 	float distanceY = abs(displacementY);
 
-
 	// If the value of the overlaps are greater than 0, it means that objects are collided
 	float overlapX = (p1_width / 2 + p2_width / 2) - distanceX;
 	float overlapY = (p1_height / 2 + p2_height / 2) - distanceY;
 
-	//float directionX = Util::Sign(displacementX);
-	//float directionY = Util::Sign(displacementY);
-
+	// p = m * v (Momentum = Mass * Velocity)
 	glm::vec2 totalMomentum = object2->GetMomentum() + object2->GetMomentum();
 	float COR1 = object1->GetMaterialCOR();
 	float COR2 = object2->GetMaterialCOR();
-
-	//if (object1->GetType() == GameObjectType::BLOCK_FIX)
-	//	cout << direction.x << " / " << direction.y << endl;
-
 
 	if (overlapY > 0 && overlapX > 0)
 	{
@@ -109,6 +102,7 @@ bool CollisionManager::AABBCheck(PhysicsEngine* object1, PhysicsEngine* object2)
 		if (overlapX < overlapY)
 		{
 			object2->GetTransform()->position.x = object2->GetTransform()->position.x + direction.x * overlapX;
+			// v = p / m (Velocity = (totalMomentum / COR) / mass) 
 			object2->SetVelocity(direction * (totalMomentum * COR2) / object2->GetMass());
 
 			// Bounce for another object, but except Fixed_Block
@@ -129,6 +123,8 @@ bool CollisionManager::AABBCheck(PhysicsEngine* object1, PhysicsEngine* object2)
 				object1->SetVelocity(-direction * (totalMomentum * COR1) / object1->GetMass());
 			}
 		}
+
+		// Check if object is applied bigger energy than their toughness, if then, object will be destroyed
 		if (object2->GetToughness().x <= abs(totalMomentum.x * COR2) || object2->GetToughness().y <= abs(totalMomentum.y * COR2))
 		{
 			object2->SetOverTough(true);
@@ -315,7 +311,7 @@ bool CollisionManager::CircleAABBCheck(PhysicsEngine* aabb, PhysicsEngine* circl
 	float overlapX = (p1_width * 0.5f) - distanceX;
 	float overlapY = (p1_height * 0.5f) - distanceY;
 
-
+	// p = m * v (Momentum = Mass * Velocity)
 	glm::vec2 totalMomentum = aabb->GetMomentum() + circle->GetMomentum();
 	float COR1 = aabb->GetMaterialCOR();
 	float COR2 = circle->GetMaterialCOR();
@@ -327,6 +323,7 @@ bool CollisionManager::CircleAABBCheck(PhysicsEngine* aabb, PhysicsEngine* circl
 		if (overlapX < overlapY)
 		{
 			circle->GetTransform()->position = circle->GetTransform()->position + direction * overlapX;
+			// v = p / m (Velocity = (totalMomentum / COR) / mass) 
 			circle->SetVelocity(direction * (totalMomentum * COR2) / circle->GetMass());
 
 			// Bounce for another object, but except Fixed_Block
@@ -348,6 +345,7 @@ bool CollisionManager::CircleAABBCheck(PhysicsEngine* aabb, PhysicsEngine* circl
 			}
 		}
 
+		// Check if object is applied bigger energy than their toughness, if then, object will be destroyed
 		if (circle->GetToughness().x <= abs(totalMomentum.x * COR2) || circle->GetToughness().y <= abs(totalMomentum.y * COR2))
 		{
 			circle->SetOverTough(true);
