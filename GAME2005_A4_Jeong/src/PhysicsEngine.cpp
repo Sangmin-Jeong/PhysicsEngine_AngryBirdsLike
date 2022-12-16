@@ -122,6 +122,13 @@ void PhysicsEngine::Update()
 		{
 			if (CollisionManager::CircleCircleCheck(m_pProjectiles[i], m_pEnemies[j]))
 			{
+				if(m_pEnemies[j]->GetOverTough() == true)
+				{
+					//Score
+					delete m_pEnemies[j];
+					m_pEnemies.erase(std::remove(m_pEnemies.begin(), m_pEnemies.end(), m_pEnemies[j]), m_pEnemies.end());
+					PlayScene::SetScore(PlayScene::GetScore() + 1);
+				}
 				break;
 			}
 		}

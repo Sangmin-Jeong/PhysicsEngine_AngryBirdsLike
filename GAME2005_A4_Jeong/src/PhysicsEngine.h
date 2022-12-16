@@ -127,6 +127,12 @@ public:
 	//void SetIsActive(bool active) { isActive = active; }
 	//bool GetIsActive() { return isActive; }
 
+	// Toughness
+	void SetOverTough(bool b) { overTough = b; }
+	bool GetOverTough() { return overTough; }
+	glm::vec2 GetToughness() { return toughness; }
+	void SetToughness(glm::vec2 v2) { toughness = v2; }
+
 private:
 	inline static vector<PhysicsEngine*> physicsObjects;
 	inline static vector<PhysicsEngine*> m_pProjectiles;
@@ -198,6 +204,10 @@ private:
 
 	bool isCollided = false;
 	//bool isActive;
+
+	// Toughness
+	bool overTough = false;
+	glm::vec2 toughness;
 
 	// F=ma , a = F/m
 };

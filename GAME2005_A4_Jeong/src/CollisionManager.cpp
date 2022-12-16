@@ -370,6 +370,10 @@ bool CollisionManager::CircleCircleCheck(PhysicsEngine* object1, PhysicsEngine* 
 	glm::vec2 totalMomentum = object1->GetMomentum() + object2->GetMomentum();
 	float COR1 = object1->GetMaterialCOR();
 	float COR2 = object2->GetMaterialCOR();
+	glm::vec2 toughness1 = totalMomentum * 0.4f;
+	//object2->SetToughness(abs(toughness1));
+	//cout << object2->GetToughness().x << " / " << object2->GetToughness().y << endl;
+	cout << totalMomentum.x << " / " << totalMomentum.y << endl;
 
 	float distnace = Util::Distance(circle_centre2, circle_centre1);
 	float overlap = (circle_radius1 + circle_radius2) - distnace;
@@ -383,6 +387,16 @@ bool CollisionManager::CircleCircleCheck(PhysicsEngine* object1, PhysicsEngine* 
 		object1->GetTransform()->position = object1->GetTransform()->position + -direction * overlap;
 		object2->GetTransform()->position = object2->GetTransform()->position + direction * overlap;
 
+		//if (abs(toughness1.x) <= abs(totalMomentum.x * COR2) || abs(toughness1.y) <= abs(totalMomentum.y * COR2))
+		//{
+		//	object2->SetOverTough(true);
+		//}
+
+		if (object2->GetToughness().x <= abs(totalMomentum.x * COR2) || object2->GetToughness().y <= abs(totalMomentum.y * COR2))
+		{
+			object2->SetOverTough(true);
+		}
+		
 		// v = p / m (Velocity = (totalMomentum / 2) / mass) 
 		object1->SetVelocity(-direction * (totalMomentum * COR1) / object1->GetMass());
 		object2->SetVelocity(direction * (totalMomentum * COR2) / object2->GetMass());

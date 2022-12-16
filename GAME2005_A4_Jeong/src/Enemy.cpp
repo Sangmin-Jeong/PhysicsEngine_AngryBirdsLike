@@ -22,6 +22,8 @@ Enemy::Enemy(float mass, float angle, float speed, float gravity, float damping,
 	//GetRigidBody()->acceleration = glm::vec2(0, GetGravity());
 	GetRigidBody()->isColliding = false;
 
+	SetToughness(glm::vec2(800.0f, 800.0f));
+
 	BuildAnimations();
 }
 
