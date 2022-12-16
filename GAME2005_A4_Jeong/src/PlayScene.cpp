@@ -30,19 +30,8 @@ void PlayScene::Start()
 
 	// Enemies
 	physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 550, groundPoint.y - 36, GameObjectType::ENEMY, MaterialType::STEEL));
-	//physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 650, groundPoint.y - 36, GameObjectType::ENEMY, MaterialType::STEEL));
-	//physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 600, 140, GameObjectType::ENEMY, MaterialType::STEEL));
-
-
-	// Boundaries
-	//physicsEngine.AddBoundary(new Boundary(glm::vec2(350,300), 230.0f));
-	//physicsEngine.AddBoundary(new Boundary(groundPoint, 90.0f, 1000.0f));
-	//physicsEngine.AddBoundary(new Boundary(glm::vec2(700,400), 135.0f, 1000.0f));
-	//physicsEngine.AddBoundary(new Boundary(glm::vec2(slingshotPoint.x + 20, slingshotPoint.y + 50), 0.0f, 50.0f));
-	//physicsEngine.AddBoundary(new Boundary(glm::vec2(slingshotPoint.x, slingshotPoint.y), 90.0f, 10.0f));
-	//physicsEngine.AddBoundary(new Boundary(glm::vec2(800, 400), 0.0f, 1000.0f));
-	//physicsEngine.AddBoundary(new Boundary(glm::vec2(0, 400), 0.0f, 1000.0f));
-	//physicsEngine.AddBoundary(new Boundary(glm::vec2(400, 000), 90.0f, 1000.0f));
+	physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 650, groundPoint.y - 36, GameObjectType::ENEMY, MaterialType::STEEL));
+	physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 600, 140, GameObjectType::ENEMY, MaterialType::STEEL));
 
 	// Fixed-Block
 	physicsEngine.AddObject(new Block(blockMass, 0, 0, 0, 0, 0, groundPoint.y, GameObjectType::BLOCK_FIX, MaterialType::STEEL));
@@ -50,20 +39,21 @@ void PlayScene::Start()
 	physicsEngine.GetFixedBlocks().back()->SetHeight(50);
 
 	// Blocks
-	//physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 450, GameObjectType::BLOCK, MaterialType::STEEL));
-	//physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 360, GameObjectType::BLOCK, MaterialType::STEEL));
-	//physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 270, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 450, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 360, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 270, GameObjectType::BLOCK, MaterialType::STEEL));
 	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 700, 450, GameObjectType::BLOCK, MaterialType::STEEL));
 	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 700, 360, GameObjectType::BLOCK, MaterialType::STEEL));
 	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 700, 270, GameObjectType::BLOCK, MaterialType::STEEL));
 	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 200, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.GetBlocks().back()->SetMass(blockMass + 10.0f);
+	physicsEngine.GetBlocks().back()->SetAccelerationGravity();
 	physicsEngine.GetBlocks().back()->SetWidth(300);
 	physicsEngine.GetBlocks().back()->SetHeight(50);
 
 	const SDL_Color red = { 255, 0, 0, 255 };
 	m_pPointLabel = new Label("Score: " + to_string(score), "Consolas", 20, red, glm::vec2(50, 30));
 	AddChild(m_pPointLabel);
-
 
 	/* DO NOT REMOVE */
 	ImGuiWindowFrame::Instance().SetGuiFunction([this] { GUI_Function(); });
@@ -138,7 +128,8 @@ void PlayScene::Update()
 
 	//cout << physicsEngine.GetEnemies().back()->GetToughness().x << " / " << physicsEngine.GetEnemies().back()->GetToughness().y << endl;
 	//cout << physicsEngine.GetProjectiles().back()->GetMomentum().x << " / " << physicsEngine.GetProjectiles().back()->GetMomentum().y << endl;
-
+	//cout << physicsEngine.GetBlocks().back()->GetMomentum().x << " / " << physicsEngine.GetBlocks().back()->GetMomentum().y << endl
+	cout << physicsEngine.GetEnemies().back()->GetMomentum().x << " / " << physicsEngine.GetEnemies().back()->GetMomentum().y << endl;
 	//Time
 	currentTime = SDL_GetTicks();
 	elapsedTime = (currentTime - startTime) / 1000.0;
@@ -324,48 +315,61 @@ void PlayScene::ChangeProjectile()
 	if (!physicsEngine.GetProjectiles().empty())
 	{
 		physicsEngine.RemoveProjectile();
-		physicsEngine.AddObject(new Arrow(20.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 15, GameObjectType::ARROW, MaterialType::STEEL));
-		slingshotPower = 20.0f;
+		physicsEngine.AddObject(new Arrow(15.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 15, GameObjectType::ARROW, MaterialType::STEEL));
+		//slingshotPower = 20.0f;
 	}
 	else if (!physicsEngine.GetArrows().empty())
 	{
 		physicsEngine.RemoveArrow();
 		physicsEngine.AddObject(new Projectile(10.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE, MaterialType::STEEL));
-		slingshotPower = 10.0f;
+		//slingshotPower = 10.0f;
 	}
 
 }
 
 void PlayScene::ResetObject()
 {
-
-	if (!physicsEngine.GetProjectiles().empty())
+	while (!physicsEngine.GetProjectiles().empty())
 	{
 		physicsEngine.RemoveProjectile();
-		//physicsEngine.RemoveProjectile();
 	}
-	physicsEngine.AddObject(new Projectile(10.0f, angle, speed, gravity, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE, MaterialType::STEEL));
-
-	//physicsEngine.AddObject(new Projectile(20.0f, angle + 90.0f, speed, gravity, 0.5f, 600, 300, GameObjectType::PROJECTILE, MaterialType::WOOD));
-
-	//if (!physicsEngine.GetArrows().empty())
-	//{
-	//	physicsEngine.RemoveArrow();
-	//	RemoveAllChildren();
-	//}
-	//physicsEngine.AddObject(new Arrow(20.0f, angle, speed, gravity, 0.5f, 200, 300, GameObjectType::ARROW, MaterialType::STEEL));
-
-	if (!physicsEngine.GetBlocks().empty())
+	while (!physicsEngine.GetArrows().empty())
+	{
+		physicsEngine.RemoveArrow();
+	}
+	while(!physicsEngine.GetBlocks().empty())
 	{
 		physicsEngine.RemoveBlock();
-		physicsEngine.RemoveBlock();
-		physicsEngine.RemoveBlock();
-		
 	}
-	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 400, 400, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
-	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 350, 250, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
-	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 400, 100, GameObjectType::BLOCK, MaterialType::TUNGSTEN));
+	while (!physicsEngine.GetEnemies().empty())
+	{
+		physicsEngine.RemoveEnemy();
+	}
+	// Projectile
+	physicsEngine.AddObject(new Projectile(10.0f, 0, 0, 0, 0.8f, slingshotPoint.x + 16, slingshotPoint.y - 32, GameObjectType::PROJECTILE, MaterialType::STEEL));
 
+	// Enemies
+	physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 550, groundPoint.y - 36, GameObjectType::ENEMY, MaterialType::STEEL));
+	physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 650, groundPoint.y - 36, GameObjectType::ENEMY, MaterialType::STEEL));
+	physicsEngine.AddObject(new Enemy(10.0f, 0, 0, 9.8f, 0.5f, 600, 140, GameObjectType::ENEMY, MaterialType::STEEL));
+
+	// Fixed-Block
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 0, 0, 0, groundPoint.y, GameObjectType::BLOCK_FIX, MaterialType::STEEL));
+	physicsEngine.GetFixedBlocks().back()->SetWidth(800);
+	physicsEngine.GetFixedBlocks().back()->SetHeight(50);
+
+	// Blocks
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 450, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 360, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 270, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 700, 450, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 700, 360, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 700, 270, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.AddObject(new Block(blockMass, 0, 0, 9.8f, 0, 450, 200, GameObjectType::BLOCK, MaterialType::STEEL));
+	physicsEngine.GetBlocks().back()->SetMass(blockMass + 10.0f);
+	physicsEngine.GetBlocks().back()->SetAccelerationGravity();
+	physicsEngine.GetBlocks().back()->SetWidth(300);
+	physicsEngine.GetBlocks().back()->SetHeight(50);
 
 	//RemoveAllChildren();
 	score = 0;

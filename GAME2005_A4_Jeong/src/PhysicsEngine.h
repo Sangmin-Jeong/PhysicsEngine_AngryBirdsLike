@@ -113,6 +113,7 @@ public:
 	vector<PhysicsEngine*> GetFixedBlocks() { return m_pFixedBlocks; }
 	vector<PhysicsEngine*> GetArrows() { return m_pArrows; }
 	void AddObject(PhysicsEngine* object) { physicsObjects.push_back(object); }
+	void RemoveObject() { physicsObjects.pop_back(); }
 	void RemoveProjectile() { m_pProjectiles.pop_back(); }
 	void RemoveEnemy() { m_pEnemies.pop_back(); }
 	void RemoveArrow() { m_pArrows.pop_back(); }

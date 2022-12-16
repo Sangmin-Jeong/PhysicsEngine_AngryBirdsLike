@@ -142,6 +142,18 @@ void PhysicsEngine::Update()
 		{
 			if (CollisionManager::CircleAABBCheck(m_pBlocks[j], m_pProjectiles[i]))
 			{
+				if (m_pBlocks[j]->GetOverTough() == true)
+				{
+					delete m_pBlocks[j];
+					m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[j]), m_pBlocks.end());
+				}
+
+				//if (m_pProjectiles[i]->GetOverTough() == true)
+				//{
+				//	//Score
+				//	delete m_pProjectiles[i];
+				//	m_pProjectiles.erase(std::remove(m_pProjectiles.begin(), m_pProjectiles.end(), m_pProjectiles[i]), m_pProjectiles.end());
+				//}
 				break;
 			}
 		}
@@ -166,8 +178,23 @@ void PhysicsEngine::Update()
 		{
 			for (unsigned j = i + 1; j < m_pEnemies.size(); j++)
 			{
-				if (CollisionManager::CircleCircleCheck(m_pEnemies[i], m_pEnemies[i + 1]))
+				if (CollisionManager::CircleCircleCheck(m_pEnemies[i], m_pEnemies[j]))
 				{
+
+					if (m_pEnemies[i]->GetOverTough() == true)
+					{
+						delete m_pEnemies[i];
+						m_pEnemies.erase(std::remove(m_pEnemies.begin(), m_pEnemies.end(), m_pEnemies[i]), m_pEnemies.end());
+						PlayScene::SetScore(PlayScene::GetScore() + 1);
+
+					}
+
+					if (m_pEnemies[j]->GetOverTough() == true)
+					{
+						delete m_pEnemies[j];
+						m_pEnemies.erase(std::remove(m_pEnemies.begin(), m_pEnemies.end(), m_pEnemies[j]), m_pEnemies.end());
+						PlayScene::SetScore(PlayScene::GetScore() + 1);
+					}
 					break;
 				}
 			}
@@ -181,6 +208,19 @@ void PhysicsEngine::Update()
 		{
 			if (CollisionManager::CircleAABBCheck(m_pBlocks[j], m_pEnemies[i]))
 			{
+				if (m_pEnemies[i]->GetOverTough() == true)
+				{
+					delete m_pEnemies[i];
+					m_pEnemies.erase(std::remove(m_pEnemies.begin(), m_pEnemies.end(), m_pEnemies[i]), m_pEnemies.end());
+					PlayScene::SetScore(PlayScene::GetScore() + 1);
+
+				}
+
+				if (m_pBlocks[j]->GetOverTough() == true)
+				{
+					delete m_pBlocks[j];
+					m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[j]), m_pBlocks.end());
+				}
 				break;
 			}
 		}
@@ -193,6 +233,13 @@ void PhysicsEngine::Update()
 		{
 			if (CollisionManager::CircleAABBCheck(m_pFixedBlocks[j], m_pEnemies[i]))
 			{
+				if (m_pEnemies[i]->GetOverTough() == true)
+				{
+					delete m_pEnemies[i];
+					m_pEnemies.erase(std::remove(m_pEnemies.begin(), m_pEnemies.end(), m_pEnemies[i]), m_pEnemies.end());
+					PlayScene::SetScore(PlayScene::GetScore() + 1);
+
+				}
 				break;
 			}
 		}
@@ -232,6 +279,13 @@ void PhysicsEngine::Update()
 		{
 			if (CollisionManager::CircleAABBCheck(m_pArrows[i], m_pEnemies[j]))
 			{
+				if (m_pEnemies[j]->GetOverTough() == true)
+				{
+					delete m_pEnemies[j];
+					m_pEnemies.erase(std::remove(m_pEnemies.begin(), m_pEnemies.end(), m_pEnemies[j]), m_pEnemies.end());
+					PlayScene::SetScore(PlayScene::GetScore() + 1);
+
+				}
 				break;
 			}
 		}
@@ -245,6 +299,11 @@ void PhysicsEngine::Update()
 		{
 			if (CollisionManager::AABBCheck(m_pBlocks[j], m_pArrows[i]))
 			{
+				if (m_pBlocks[j]->GetOverTough() == true)
+				{
+					delete m_pBlocks[j];
+					m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[j]), m_pBlocks.end());
+				}
 				break;
 			}
 		}
@@ -269,6 +328,11 @@ void PhysicsEngine::Update()
 		{
 			if (CollisionManager::AABBCheck(m_pFixedBlocks[i], m_pBlocks[j]))
 			{
+				if (m_pBlocks[j]->GetOverTough() == true)
+				{
+					delete m_pBlocks[j];
+					m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[j]), m_pBlocks.end());
+				}
 				break;
 			}
 		}
@@ -279,13 +343,35 @@ void PhysicsEngine::Update()
 	{
 		for (unsigned i = 0; i < m_pBlocks.size(); i++)
 		{
-			for (unsigned j = i + 1; j < m_pBlocks.size(); j++)
+			if (m_pBlocks.size() >= 2)
 			{
-				if (CollisionManager::AABBCheck(m_pBlocks[i], m_pBlocks[j]))
+				for (unsigned j = i + 1; j < m_pBlocks.size(); j++)
 				{
-					break;
+					if (m_pBlocks.size() >= 2)
+					{
+						if (CollisionManager::AABBCheck(m_pBlocks[i], m_pBlocks[j]))
+						{
+							//if (m_pBlocks[i]->GetOverTough() == true)
+							//{
+							//	delete m_pBlocks[i];
+							//	m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[i]), m_pBlocks.end());
+							//	delete m_pBlocks[j];
+							//	m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[j]), m_pBlocks.end());
+
+							//}
+	/*						m_pBlocks.shrink_to_fit();
+							if (m_pBlocks[j]->GetOverTough() == true)
+							{
+								delete m_pBlocks[j];
+								m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[j]), m_pBlocks.end());
+							}
+							m_pBlocks.shrink_to_fit();*/
+							break;
+						}
+					}
 				}
 			}
+		
 		}
 	}
 }
@@ -310,7 +396,15 @@ void PhysicsEngine::SetMovementVals(float mass, float angle, float speed, float 
 void PhysicsEngine::ProjectileMovement()
 {
 	//Projectile Movement
-
+	if (Game::Instance().GetCurScene() == SceneState::PLAY)
+	{
+		netForce = accelerationGravity;
+		// a = F/m
+		acceleration = netForce / mass;
+		velocity += acceleration * deltaTime;
+		GetTransform()->position += velocity * deltaTime;
+		momentum = abs(mass * velocity);
+	}
 	// Checking if object is collided with boundary or not
 	//if (isCollided == true)
 	//{
@@ -322,15 +416,6 @@ void PhysicsEngine::ProjectileMovement()
 	//	// In air, only gravity is applied
 	//	netForce = accelerationGravity;
 	//}
-	if(Game::Instance().GetCurScene() == SceneState::PLAY)
-	{
-		netForce = accelerationGravity;
-		// a = F/m
-		acceleration = netForce / mass;
-		velocity += acceleration * deltaTime;
-		GetTransform()->position += velocity * deltaTime;
-		momentum = abs(mass * velocity);
-	}
 }
 
 Transform* PhysicsEngine::GetTransform()

@@ -65,7 +65,7 @@ private:
 	float stX = 100.0f;
 	float damp;
 	float mass;
-	float blockMass = 5.0f;
+	float blockMass = 10.0f;
 
 	bool isHighestPoint;
 	bool check = true;

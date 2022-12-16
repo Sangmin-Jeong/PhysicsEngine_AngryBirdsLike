@@ -16,7 +16,10 @@ Block::Block(float mass, float angle, float speed, float gravity, float damping,
 
 	GetTransform()->position = glm::vec2(GetStartingX(), GetStartingY());
 	GetRigidBody()->velocity = GetVelocity();
-	//GetRigidBody()->acceleration = 
+	//GetRigidBody()->acceleration =
+
+	SetToughness(glm::vec2(600.0f, 600.0f));
+
 	GetRigidBody()->isColliding = false;
 }
 
