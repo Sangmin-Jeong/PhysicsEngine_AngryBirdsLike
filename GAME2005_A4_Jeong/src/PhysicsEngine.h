@@ -102,6 +102,7 @@ public:
 	void SetAppliedForce(glm::vec2 v2) { appliedForce = v2; }
 	void SetMomentum(glm::vec2 v2) { momentum = v2; }
 	void SetTotalMomentum(glm::vec2 v2) { totalMomentum = v2; }
+	void SetMaterial(MaterialType type);
 
 	void SetMovementVals(float mass, float angle, float speed, float gravity, float damping, float startX, float startY, GameObjectType type);
 

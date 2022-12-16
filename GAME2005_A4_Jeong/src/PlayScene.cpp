@@ -55,6 +55,9 @@ void PlayScene::Start()
 	m_pPointLabel = new Label("Score: " + to_string(score), "Consolas", 20, red, glm::vec2(50, 30));
 	AddChild(m_pPointLabel);
 
+	m_pInstructionLabel = new Label("[C] Switch Weapon , [SPACE] Reset Object ", "Consolas", 20, red, glm::vec2(500, 30));
+	AddChild(m_pInstructionLabel);
+
 	/* DO NOT REMOVE */
 	ImGuiWindowFrame::Instance().SetGuiFunction([this] { GUI_Function(); });
 
@@ -129,7 +132,7 @@ void PlayScene::Update()
 	//cout << physicsEngine.GetEnemies().back()->GetToughness().x << " / " << physicsEngine.GetEnemies().back()->GetToughness().y << endl;
 	//cout << physicsEngine.GetProjectiles().back()->GetMomentum().x << " / " << physicsEngine.GetProjectiles().back()->GetMomentum().y << endl;
 	//cout << physicsEngine.GetBlocks().back()->GetMomentum().x << " / " << physicsEngine.GetBlocks().back()->GetMomentum().y << endl
-	cout << physicsEngine.GetEnemies().back()->GetMomentum().x << " / " << physicsEngine.GetEnemies().back()->GetMomentum().y << endl;
+	//cout << physicsEngine.GetEnemies().back()->GetMomentum().x << " / " << physicsEngine.GetEnemies().back()->GetMomentum().y << endl;
 	//Time
 	currentTime = SDL_GetTicks();
 	elapsedTime = (currentTime - startTime) / 1000.0;
@@ -411,7 +414,6 @@ void PlayScene::GUI_Function()
 {
 	// Always open with a NewFrame
 	ImGui::NewFrame();
-
 	// See examples by uncommenting the following - also look at imgui_demo.cpp in the IMGUI filter
 	//ImGui::ShowDemoWindow();
 	
@@ -422,83 +424,86 @@ void PlayScene::GUI_Function()
 	//ImGui::RadioButton("Game Controller", &m_pCurrentInputType, static_cast<int>(InputType::GAME_CONTROLLER)); ImGui::SameLine();
 	//ImGui::RadioButton("Both", &m_pCurrentInputType, static_cast<int>(InputType::ALL));
 
-	ImGui::Separator();
-
 	if(ImGui::Button("Reset objects"))
 	{
 		ResetObject();
 		/*std::cout << "My Button Pressed" << std::endl;*/
 	}
 
+	ImGui::Separator();
+	ImGui::SliderFloat("Slingshot Power: ", &slingshotPower, 1, 20.0);
+
 	if (!physicsEngine.GetProjectiles().empty())
 	{
-		//ImGui::Text("Incline Angle");
-		//float HPangle = physicsEngine.GetBoundaries().back()->GetAngle();
-		//ImGui::SliderFloat("Angle", &HPangle, 0, 360.0);
-		//physicsEngine.GetBoundaries().back()->SetAngle(HPangle);
-
-		//ImGui::Separator();
-		//ImGui::Text("RED CIRCLE");
-		//float fricV = physicsEngine.GetProjectiles()[0]->GetDamping();
-		//float massV = physicsEngine.GetProjectiles()[0]->GetMass();
-		//ImGui::SliderFloat("Mass(RED)", &massV, 0.1, 20.0);
-		//ImGui::SliderFloat("Friction(RED)", &fricV, 0.0, 2.0);
-		//physicsEngine.GetProjectiles()[0]->SetDamping(fricV);
-		//physicsEngine.GetProjectiles()[0]->SetMass(massV);
-		//physicsEngine.GetProjectiles()[0]->SetAccelerationGravity();
-
-		//ImGui::Separator();
-		//ImGui::Text("GREEN CIRCLE");
-		//float fricV2 = physicsEngine.GetProjectiles()[1]->GetDamping();
-		//float massV2 = physicsEngine.GetProjectiles()[1]->GetMass();
-		//ImGui::SliderFloat("Mass(GREEN)", &massV2, 0.1, 20.0);
-		//ImGui::SliderFloat("Friction(GREEN)", &fricV2, 0.0, 2.0);
-		//physicsEngine.GetProjectiles()[1]->SetDamping(fricV2);
-		//physicsEngine.GetProjectiles()[1]->SetMass(massV2);
-		//physicsEngine.GetProjectiles()[1]->SetAccelerationGravity();
-
-		//ImGui::Separator();
-		//ImGui::Text("BLUE CIRCLE");
-		//float fricV3 = physicsEngine.GetProjectiles()[2]->GetDamping();
-		//float massV3 = physicsEngine.GetProjectiles()[2]->GetMass();
-		//ImGui::SliderFloat("Mass(BLUE)", &massV3, 0.1, 10.0);
-		//ImGui::SliderFloat("Friction(BLUE)", &fricV3, 0.0, 10.0);
-		//physicsEngine.GetProjectiles()[2]->SetDamping(fricV3);
-		//physicsEngine.GetProjectiles()[2]->SetMass(massV3);
-		//physicsEngine.GetProjectiles()[2]->SetAccelerationGravity();
-
-		//ImGui::Separator();
-		//ImGui::Text("YELLOW CIRCLE");
-		//float fricV4 = physicsEngine.GetProjectiles()[3]->GetDamping();
-		//float massV4 = physicsEngine.GetProjectiles()[3]->GetMass();
-		//ImGui::SliderFloat("Mass(YELLOW)", &massV4, 0.1, 10.0);
-		//ImGui::SliderFloat("Friction(YELLOW)", &fricV4, 0.0, 10.0);
-		//physicsEngine.GetProjectiles()[3]->SetDamping(fricV4);
-		//physicsEngine.GetProjectiles()[3]->SetMass(massV4);
-		//physicsEngine.GetProjectiles()[3]->SetAccelerationGravity();
+		ImGui::Separator();
+		ImGui::Text("Projectile(Circle)");
+		float mass1 = physicsEngine.GetProjectiles().back()->GetMass();
+		ImGui::SliderFloat("MassP: ", &mass1, 0.1, 20.0);
+		physicsEngine.GetProjectiles().back()->SetMass(mass1);
+		physicsEngine.GetProjectiles().back()->SetAccelerationGravity();
 
 		ImGui::Separator();
-		ImGui::LabelText("RED Velocity", "x:%f, y:%f", physicsEngine.GetProjectiles()[0]->GetVelocity().x, physicsEngine.GetProjectiles()[0]->GetVelocity().y);
-		//ImGui::LabelText("RED Momentum", "x:%f, y:%f", physicsEngine.GetProjectiles()[0]->GetMomentum().x, physicsEngine.GetProjectiles()[0]->GetMomentum().y);
-		//ImGui::Separator();
-		//ImGui::LabelText("GREEN Velocity", "x:%f, y:%f", physicsEngine.GetProjectiles()[1]->GetVelocity().x, physicsEngine.GetProjectiles()[1]->GetVelocity().y);
-		//ImGui::LabelText("GREEN Momentum", "x:%f, y:%f", physicsEngine.GetProjectiles()[1]->GetMomentum().x, physicsEngine.GetProjectiles()[1]->GetMomentum().y);
-		//ImGui::Separator();
-		//ImGui::LabelText("Total Momentum", "x:%f, y:%f", abs(physicsEngine.GetProjectiles()[1]->GetMomentum().x) + abs(physicsEngine.GetProjectiles()[0]->GetMomentum().x), abs(physicsEngine.GetProjectiles()[1]->GetMomentum().y) + abs(physicsEngine.GetProjectiles()[0]->GetMomentum().y));
+		ImGui::LabelText("VelocityP", "x:%f, y:%f", physicsEngine.GetProjectiles().back()->GetVelocity().x, physicsEngine.GetProjectiles().back()->GetVelocity().y);
+		ImGui::LabelText("EnergyP", "x:%f, y:%f", physicsEngine.GetProjectiles().back()->GetMomentum().x * physicsEngine.GetProjectiles().back()->GetMaterialCOR(), physicsEngine.GetProjectiles().back()->GetMomentum().y * physicsEngine.GetProjectiles().back()->GetMaterialCOR());
 
-
-
+		if (ImGui::Button("STEEL"))
+		{
+			physicsEngine.GetProjectiles().back()->SetMaterial(MaterialType::STEEL);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("RUBBER"))
+		{
+			physicsEngine.GetProjectiles().back()->SetMaterial(MaterialType::RUBBER);
+		}
+		ImGui::SameLine();
+		ImGui::LabelText("", "Material: %s, COR:%f", physicsEngine.GetProjectiles().back()->GetMaterial(), physicsEngine.GetProjectiles().back()->GetMaterialCOR());
 	}
 	ImGui::Separator();
 
-	//static float float3[3] = { 0.0f, 1.0f, 1.5f };
-	//if(ImGui::SliderFloat3("My Slider", float3, 0.0f, 2.0f))
-	//{
-	//	std::cout << float3[0] << std::endl;
-	//	std::cout << float3[1] << std::endl;
-	//	std::cout << float3[2] << std::endl;
-	//	std::cout << "---------------------------\n";
-	//}
+	if (!physicsEngine.GetArrows().empty())
+	{
+		ImGui::Separator();
+		ImGui::Text("Arrow(Rectangle)");
+		float mass2 = physicsEngine.GetArrows().back()->GetMass();
+		ImGui::SliderFloat("MassA: ", &mass2, 0.1, 20.0);
+		physicsEngine.GetArrows().back()->SetMass(mass2);
+		physicsEngine.GetArrows().back()->SetAccelerationGravity();
+
+		ImGui::Separator();
+		ImGui::LabelText("VelocityA", "x:%f, y:%f", physicsEngine.GetArrows().back()->GetVelocity().x, physicsEngine.GetArrows().back()->GetVelocity().y);
+		ImGui::LabelText("EnergyA", "x:%f, y:%f", physicsEngine.GetArrows().back()->GetMomentum().x * physicsEngine.GetArrows().back()->GetMaterialCOR(), physicsEngine.GetArrows().back()->GetMomentum().y * physicsEngine.GetArrows().back()->GetMaterialCOR());
+		if (ImGui::Button("STEEL"))
+		{
+			physicsEngine.GetArrows().back()->SetMaterial(MaterialType::STEEL);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("RUBBER"))
+		{
+			physicsEngine.GetArrows().back()->SetMaterial(MaterialType::RUBBER);
+		}
+		ImGui::SameLine();
+		ImGui::LabelText("", "Material: %s, COR:%f", physicsEngine.GetArrows().back()->GetMaterial(), physicsEngine.GetArrows().back()->GetMaterialCOR());
+
+	}
+	ImGui::Separator();
+	ImGui::Separator();
+
+	if (!physicsEngine.GetEnemies().empty())
+	{
+		ImGui::Separator();
+		ImGui::Text("Enemies");
+		for(int i = 0; i < physicsEngine.GetEnemies().size(); i++)
+		{
+			float mass3 = physicsEngine.GetEnemies().back()->GetMass();
+			ImGui::SliderFloat("Mass1: ", &mass3, 0.1, 20.0);
+			physicsEngine.GetEnemies().back()->SetMass(mass3);
+			physicsEngine.GetEnemies().back()->SetAccelerationGravity();
+			ImGui::LabelText("Energy1", "x:%f, y:%f", physicsEngine.GetEnemies().back()->GetMomentum().x * physicsEngine.GetEnemies().back()->GetMaterialCOR(), physicsEngine.GetEnemies().back()->GetMomentum().y * physicsEngine.GetEnemies().back()->GetMaterialCOR());
+			ImGui::LabelText("Toughness1", "x:%f, y:%f", physicsEngine.GetEnemies().back()->GetToughness().x, physicsEngine.GetEnemies().back()->GetToughness().y);
+			ImGui::LabelText("", "Material: %s, COR:%f", physicsEngine.GetEnemies().back()->GetMaterial(), physicsEngine.GetEnemies().back()->GetMaterialCOR());
+		}
+	}
+
 	
 	ImGui::End();
 }

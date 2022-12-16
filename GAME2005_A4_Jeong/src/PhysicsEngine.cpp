@@ -147,13 +147,6 @@ void PhysicsEngine::Update()
 					delete m_pBlocks[j];
 					m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[j]), m_pBlocks.end());
 				}
-
-				//if (m_pProjectiles[i]->GetOverTough() == true)
-				//{
-				//	//Score
-				//	delete m_pProjectiles[i];
-				//	m_pProjectiles.erase(std::remove(m_pProjectiles.begin(), m_pProjectiles.end(), m_pProjectiles[i]), m_pProjectiles.end());
-				//}
 				break;
 			}
 		}
@@ -178,9 +171,9 @@ void PhysicsEngine::Update()
 		{
 			for (unsigned j = i + 1; j < m_pEnemies.size(); j++)
 			{
+				const int SIZE = m_pEnemies.size();
 				if (CollisionManager::CircleCircleCheck(m_pEnemies[i], m_pEnemies[j]))
 				{
-
 					if (m_pEnemies[i]->GetOverTough() == true)
 					{
 						delete m_pEnemies[i];
@@ -188,13 +181,26 @@ void PhysicsEngine::Update()
 						PlayScene::SetScore(PlayScene::GetScore() + 1);
 
 					}
-
-					if (m_pEnemies[j]->GetOverTough() == true)
+					if(SIZE > m_pEnemies.size())
 					{
-						delete m_pEnemies[j];
-						m_pEnemies.erase(std::remove(m_pEnemies.begin(), m_pEnemies.end(), m_pEnemies[j]), m_pEnemies.end());
-						PlayScene::SetScore(PlayScene::GetScore() + 1);
+						--j;
+						if (m_pEnemies[j]->GetOverTough() == true)
+						{
+							delete m_pEnemies[j];
+							m_pEnemies.erase(std::remove(m_pEnemies.begin(), m_pEnemies.end(), m_pEnemies[j]), m_pEnemies.end());
+							PlayScene::SetScore(PlayScene::GetScore() + 1);
+						}
 					}
+					else
+					{
+						if (m_pEnemies[j]->GetOverTough() == true)
+						{
+							delete m_pEnemies[j];
+							m_pEnemies.erase(std::remove(m_pEnemies.begin(), m_pEnemies.end(), m_pEnemies[j]), m_pEnemies.end());
+							PlayScene::SetScore(PlayScene::GetScore() + 1);
+						}
+					}
+
 					break;
 				}
 			}
@@ -244,33 +250,6 @@ void PhysicsEngine::Update()
 			}
 		}
 	}
-
-
-	// Collision detection between Projectiles
-	//if (m_pProjectiles.size() >= 2)
-	//{
-	//	for (unsigned i = 0; i < m_pProjectiles.size(); i++)
-	//	{
-	//		// to avoid increasing 'i' is bigger than amount of objects in array
-	//		if (i + 1 < m_pProjectiles.size())
-	//			if (CollisionManager::CircleCircleCheck(m_pProjectiles[i], m_pProjectiles[i + 1]))
-	//			{
-	//				// p = m * v (Momentum = Mass * Velocity)
-	//				totalMomentum = m_pProjectiles[i]->GetMomentum() + m_pProjectiles[i + 1]->GetMomentum();
-	//				glm::vec2 direction = m_pProjectiles[i + 1]->GetTransform()->position - m_pProjectiles[i]->GetTransform()->position;
-	//				glm::vec2 nomal_direction = Util::Normalize(direction);
-
-	//				// v = p / m (Velocity = (totalMomentum / 2) / mass)
-	//				// Suppose that Wooden ball's Coefficient of restitution is 0.6
-	//				// Rubber ball's Coefficient of restitution is 0.8 , Steel ball's 0.5
-	//				cout << m_pProjectiles[i]->GetMaterialCOR() << " / " << m_pProjectiles[i]->GetMaterial() << endl;
-	//				m_pProjectiles[i]->SetVelocity(-nomal_direction * ((totalMomentum * m_pProjectiles[i]->GetMaterialCOR()) / m_pProjectiles[i]->GetMass()));
-	//				m_pProjectiles[i + 1]->SetVelocity(nomal_direction * ((totalMomentum * m_pProjectiles[i + 1]->GetMaterialCOR()) / m_pProjectiles[i + 1]->GetMass()));
-
-	//				break;
-	//			}
-	//	}
-	//}
 
 	// Collision check between Arrows and Targets
 	for (unsigned i = 0; i < m_pArrows.size(); i++)
@@ -343,36 +322,61 @@ void PhysicsEngine::Update()
 	{
 		for (unsigned i = 0; i < m_pBlocks.size(); i++)
 		{
-			if (m_pBlocks.size() >= 2)
+			for (unsigned j = i + 1; j < m_pBlocks.size(); j++)
 			{
-				for (unsigned j = i + 1; j < m_pBlocks.size(); j++)
+				const int SIZE = m_pBlocks.size();
+				if (CollisionManager::AABBCheck(m_pBlocks[i], m_pBlocks[j]))
 				{
-					if (m_pBlocks.size() >= 2)
+					if (m_pBlocks[i]->GetOverTough() == true)
 					{
-						if (CollisionManager::AABBCheck(m_pBlocks[i], m_pBlocks[j]))
-						{
-							//if (m_pBlocks[i]->GetOverTough() == true)
-							//{
-							//	delete m_pBlocks[i];
-							//	m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[i]), m_pBlocks.end());
-							//	delete m_pBlocks[j];
-							//	m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[j]), m_pBlocks.end());
+						delete m_pBlocks[i];
+						m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[i]), m_pBlocks.end());
 
-							//}
-	/*						m_pBlocks.shrink_to_fit();
-							if (m_pBlocks[j]->GetOverTough() == true)
-							{
-								delete m_pBlocks[j];
-								m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[j]), m_pBlocks.end());
-							}
-							m_pBlocks.shrink_to_fit();*/
-							break;
+					}
+					if (SIZE > m_pBlocks.size())
+					{
+						--j;
+						if (m_pBlocks[j]->GetOverTough() == true)
+						{
+							delete m_pBlocks[j];
+							m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[j]), m_pBlocks.end());
 						}
 					}
+					else
+					{
+						if (m_pBlocks[j]->GetOverTough() == true)
+						{
+							delete m_pBlocks[j];
+							m_pBlocks.erase(std::remove(m_pBlocks.begin(), m_pBlocks.end(), m_pBlocks[j]), m_pBlocks.end());
+						}
+					}
+					break;
 				}
 			}
-		
 		}
+	}
+}
+
+void PhysicsEngine::SetMaterial(MaterialType type)
+{
+	switch (type)
+	{
+	case MaterialType::WOOD:
+		material = "WOOD";
+		materialCOR = 0.6f;
+		break;
+	case MaterialType::STEEL:
+		material = "STEEL";
+		materialCOR = 0.5f;
+		break;
+	case MaterialType::RUBBER:
+		material = "RUBBER";
+		materialCOR = 0.8f;
+		break;
+	case MaterialType::TUNGSTEN:
+		material = "TUNGSTEN";
+		materialCOR = 0.3f;
+		break;
 	}
 }
 

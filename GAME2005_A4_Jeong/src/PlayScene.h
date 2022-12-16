@@ -81,6 +81,8 @@ private:
 	uint32_t currentTime;
 	double elapsedTime;
 
+	//Instruction
+	Label* m_pInstructionLabel{};
 
 	// Slingshot
 	glm::vec2 slingshotPoint = glm::vec2(200.0f, 400.0f);
